@@ -13,9 +13,15 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    imagereader.cpp \
+    mainprogram.cpp \
+    solver.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    imagereader.h \
+    mainprogram.h \
+    solver.h
 
 FORMS    += mainwindow.ui
 
