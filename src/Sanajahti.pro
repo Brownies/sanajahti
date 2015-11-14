@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = OCRTest
 TEMPLATE = app
-
+RESOURCES = sanajahti.qrc
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -28,3 +28,5 @@ FORMS    += mainwindow.ui
 LIBS += -llept -ltesseract
 
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic -std=c++0x
+
+DISTFILES +=

@@ -17,6 +17,11 @@ MainWindow::MainWindow(QWidget *parent) :
     //And allow it for the main screen
     setAcceptDrops(true);
     setWindowTitle("Sanajahti solver");
+    //Load the CSS
+    QFile css(":/css/style.css");
+    css.open(QFile::ReadOnly);
+    QString stylesheet = QLatin1String(css.readAll());
+    qApp->setStyleSheet(stylesheet);
 }
 
 MainWindow::~MainWindow()

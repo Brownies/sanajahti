@@ -13,6 +13,6 @@ int main(int argc, char *argv[])
     QObject::connect(&w, &MainWindow::fileDropped, [&](QString filePath){
         program.makeGrid(filePath);
     });
-    w.show();
+    w.showMaximized();
     return a.exec();
 }
