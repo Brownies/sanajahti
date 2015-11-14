@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     qDebug() << "init MainWindow";
     ui->setupUi(this);
     //Disable the drag&drop for the children
-    ui->centralWidget->setAcceptDrops(false);
+    ui->widgetMain->setAcceptDrops(false);
     //And allow it for the main screen
     setAcceptDrops(true);
     setWindowTitle("Sanajahti solver");
