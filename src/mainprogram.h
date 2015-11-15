@@ -16,6 +16,9 @@ public:
     QVector<QVector<char>> grid;
     QStringList words;
 
+signals:
+    void gridUpdated();
+
 private:
     QString filepath;
     Solver* solver = 0;

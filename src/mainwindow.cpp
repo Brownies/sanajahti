@@ -79,7 +79,7 @@ void MainWindow::init(QVector<QVector<char>>& grid)
 }
 
 void MainWindow::update(QVector<QVector<char>>& grid, QStringList& words) {
-    //Init table
+    //Update table
     QTableWidget* gridWidget = ui->tableWidgetGrid;
     int width = grid.length();
     int height = grid.first().length();
@@ -97,4 +97,6 @@ void MainWindow::update(QVector<QVector<char>>& grid, QStringList& words) {
         }
     }
     gridWidget->viewport()->update();
+    //Update word list
+
 }

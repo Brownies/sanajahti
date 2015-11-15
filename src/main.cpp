@@ -14,7 +14,11 @@ int main(int argc, char *argv[])
     QObject::connect(&w, &MainWindow::fileDropped, [&](QString filePath){
         program.makeGrid(filePath);
     });
+    //Update the grid in the UI if the data has changed
+    QObject::connect(&program, &MainProgram::gridUpdated, [&]() {
+        w.update(program.grid, program.words);
+    });
     w.update(program.grid, program.words);
-    w.showMaximized();
+    w.show();
     return a.exec();
 }
