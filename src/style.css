@@ -14,9 +14,12 @@ QPushButton {
 }
 
 QTableWidget {
-    border: 1px dashed red;
     color: black;
     font-size: 36px;
+}
+
+QTableWidget::item:selected {
+    background-color: green;
 }
 
 QHeaderView::section:horizontal {
@@ -24,5 +27,5 @@ QHeaderView::section:horizontal {
 }
 
 QTreeWidget {
-    border: 1px dashed red;
+
 }

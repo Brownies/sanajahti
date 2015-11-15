@@ -7,7 +7,7 @@ Solver::Solver(QObject *parent) : QObject(parent)
 }
 
 //Solves the words in the given grid
-QStringList Solver::solve(QVector<QVector<char>>& grid, QStringList& words)
+QStringList Solver::solve(QVector<QVector<char>>& grid, QVector<QString>& words)
 {
     qDebug() << "Solver::Solve( " << grid << ", " << words << ") - NOT IMPLEMENTED";
     return QStringList();

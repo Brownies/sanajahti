@@ -14,7 +14,7 @@ public:
     explicit MainProgram();
     void makeGrid(QString filePath);
     QVector<QVector<char>> grid;
-    QStringList words;
+    QVector<QString> words;
 
 signals:
     void gridUpdated();

@@ -78,7 +78,7 @@ void MainWindow::init(QVector<QVector<char>>& grid)
     gridWidget->viewport()->update();
 }
 
-void MainWindow::update(QVector<QVector<char>>& grid, QStringList& words) {
+void MainWindow::update(QVector<QVector<char>>& grid, QVector<QString>& words) {
     //Update table
     QTableWidget* gridWidget = ui->tableWidgetGrid;
     int width = grid.length();
@@ -98,5 +98,12 @@ void MainWindow::update(QVector<QVector<char>>& grid, QStringList& words) {
     }
     gridWidget->viewport()->update();
     //Update word list
+    QTreeWidget* wordWidget = ui->treeWidgetWords;
+    wordWidget->clear();
+    for(auto i = 0; i < words.length(); i++) {
+        QTreeWidgetItem* item = new QTreeWidgetItem();
+        item->setText(0, words[i]);
+        ui->treeWidgetWords->addTopLevelItem(item);
+    }
 
 }
