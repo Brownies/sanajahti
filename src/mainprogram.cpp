@@ -6,6 +6,11 @@ MainProgram::MainProgram() : QObject()
     qDebug() << "Init MainProgram";
     imgReader = new ImageReader(this);
     solver = new Solver(this);
+    //Init data for grid
+    char space = 'x';
+    QVector<char> empty(4, space);
+    grid.fill(empty, 4);
+    qDebug() << "Grid is: " << grid;
 }
 
 //Fills currentGrid with the data from the file if possible

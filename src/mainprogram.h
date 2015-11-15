@@ -6,8 +6,6 @@
 #include "solver.h"
 #include "imagereader.h"
 
-typedef QVector<QVector<char*>> Grid;
-
 
 class MainProgram : public QObject
 {
@@ -15,11 +13,11 @@ class MainProgram : public QObject
 public:
     explicit MainProgram();
     void makeGrid(QString filePath);
+    QVector<QVector<char>> grid;
+    QStringList words;
 
 private:
     QString filepath;
-    Grid grid;
-    QStringList words;
     Solver* solver = 0;
     ImageReader* imgReader = 0;
 

@@ -16,6 +16,8 @@ public:
     ~MainWindow();
     void dragEnterEvent(QDragEnterEvent* event);
     void dropEvent(QDropEvent* event);
+    void init(QVector<QVector<char> > &grid);
+    void update(QVector<QVector<char>>& grid, QStringList& words);
 
 signals:
     void fileDropped(QString filePath);

@@ -11,7 +11,7 @@ ImageReader::ImageReader(QObject *parent) : QObject(parent)
 
 //Returns true if the filePath exists and can be read with Tesseract
 //Fills the Grid given as a reference
-bool ImageReader::initData(QString filePath, QVector<QVector<char*>>& grid)
+bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
 {
     qDebug() << "ImageReader::initData(" << filePath << ", " << grid << ") - NOT IMPLEMENTED";
     /*

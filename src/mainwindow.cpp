@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    qDebug() << "init MainWindow";
+    qDebug() << "Init MainWindow";
     ui->setupUi(this);
     //Disable the drag&drop for the children
     ui->widgetMain->setAcceptDrops(false);
@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QString stylesheet = QLatin1String(css.readAll());
     qApp->setStyleSheet(stylesheet);
 }
+
 
 MainWindow::~MainWindow()
 {
@@ -52,4 +53,48 @@ void MainWindow::dropEvent(QDropEvent* event)
         qDebug() << "emit MainWindow::DropEvent with file " << file;
         emit fileDropped(file);
     }
+}
+
+void MainWindow::init(QVector<QVector<char>>& grid)
+{
+    //Init table
+    QTableWidget* gridWidget = ui->tableWidgetGrid;
+    int width = grid.length();
+    int height = grid.first().length();
+    //Set the table size
+    gridWidget->setColumnCount(width);
+    gridWidget->setRowCount(height);
+    gridWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    gridWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //Display the data
+    for(auto x = 0; x < width; x++) {
+        for(auto y = 0; y < height; y++) {
+            char current = grid.at(x).at(y);
+            QTableWidgetItem* newItem = new QTableWidgetItem(current);
+            newItem->setTextAlignment(Qt::AlignCenter);
+            gridWidget->setItem(x, y, newItem);
+        }
+    }
+    gridWidget->viewport()->update();
+}
+
+void MainWindow::update(QVector<QVector<char>>& grid, QStringList& words) {
+    //Init table
+    QTableWidget* gridWidget = ui->tableWidgetGrid;
+    int width = grid.length();
+    int height = grid.first().length();
+    //Set the table size
+    gridWidget->setColumnCount(width);
+    gridWidget->setRowCount(height);
+    gridWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    gridWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //Display the data
+    for(auto x = 0; x < width; x++) {
+        for(auto y = 0; y < height; y++) {
+            char current = grid.at(x).at(y);
+            QTableWidgetItem* currentItem = gridWidget->item(x, y);
+            currentItem->setText(QString(current));
+        }
+    }
+    gridWidget->viewport()->update();
 }
