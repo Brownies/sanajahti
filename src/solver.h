@@ -8,7 +8,7 @@ class Solver : public QObject
 {
 public:
     Solver(QObject *parent = 0);
-    QStringList solve(QVector<QVector<char> > &grid, QVector<QString> &words);
+    bool solve(QVector<QVector<char> > &grid, QVector<QString> &words);
 };
 
 #endif // SOLVER_H

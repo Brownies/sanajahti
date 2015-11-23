@@ -102,6 +102,7 @@ void MainWindow::update(QVector<QVector<char>>& grid, QVector<QString>& words) {
     wordWidget->clear();
     for(auto i = 0; i < words.length(); i++) {
         QTreeWidgetItem* item = new QTreeWidgetItem();
+        qDebug() << words[i];
         item->setText(0, words[i]);
         ui->treeWidgetWords->addTopLevelItem(item);
     }

@@ -25,6 +25,7 @@ void MainProgram::makeGrid(QString filePath)
     //Parse an image with Tesseract
     bool imageRead = imgReader->initData(filePath, grid);
     if(imageRead) {
+        solver->solve(grid, words);
         emit gridUpdated();
     }
     //Or read from a text file
