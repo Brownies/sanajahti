@@ -14,12 +14,13 @@ QPushButton {
 }
 
 QTableWidget {
-    color: black;
+    color: #0F0F0F;
     font-size: 36px;
 }
 
 QTableWidget::item:selected {
-    background-color: green;
+    background-color: #BED9F6;
+    color: white;
 }
 
 QHeaderView::section:horizontal {
