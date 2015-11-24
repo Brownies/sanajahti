@@ -47,6 +47,24 @@
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="QTreeWidget" name="treeWidgetWords">
+         <property name="autoExpandDelay">
+          <number>-1</number>
+         </property>
+         <property name="indentation">
+          <number>20</number>
+         </property>
+         <property name="rootIsDecorated">
+          <bool>false</bool>
+         </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+         <property name="animated">
+          <bool>true</bool>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
          <attribute name="headerVisible">
           <bool>false</bool>
          </attribute>

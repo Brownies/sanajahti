@@ -5,6 +5,7 @@
 #include <QVector>
 #include "solver.h"
 #include "imagereader.h"
+#include "word.h"
 
 
 class MainProgram : public QObject
@@ -14,7 +15,7 @@ public:
     explicit MainProgram();
     void makeGrid(QString filePath);
     QVector<QVector<char>> grid;
-    QVector<QString> words;
+    QVector<QVector<Word*> > words;
 
 signals:
     void gridUpdated();

@@ -1,6 +1,7 @@
 * {
     background-color: white;
     border: none;
+    font-size: 20px;
 }
 
 QPushButton {
@@ -18,15 +19,23 @@ QTableWidget {
     font-size: 36px;
 }
 
-QTableWidget::item:selected {
-    background-color: #BED9F6;
-    color: white;
-}
-
 QHeaderView::section:horizontal {
     margin-right: 5px;
 }
 
-QTreeWidget {
+QTreeWidget::item:has-children {
+    border-bottom:1px solid #BED9F6;
+}
 
+QTreeWidget::branch {
+    background-color: white;
+}
+
+QTreeWidget::branch:selected {
+    background-color: #BED9F6;
+}
+
+*::item:selected {
+    background-color: #BED9F6;
+    color: white;
 }

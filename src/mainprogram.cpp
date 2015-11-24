@@ -12,9 +12,6 @@ MainProgram::MainProgram() : QObject()
     grid.fill(empty, 4);
     qDebug() << "Grid is: " << grid;
     //Init data for words (TEST)
-    words.append("ASD");
-    words.append("SDF");
-    words.append("DFG");
 }
 
 //Fills currentGrid with the data from the file if possible

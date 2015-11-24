@@ -78,7 +78,7 @@ void MainWindow::init(QVector<QVector<char>>& grid)
     gridWidget->viewport()->update();
 }
 
-void MainWindow::update(QVector<QVector<char>>& grid, QVector<QString>& words) {
+void MainWindow::update(QVector<QVector<char>>& grid, QVector<QVector<Word*>> &words) {
     //Update table
     QTableWidget* gridWidget = ui->tableWidgetGrid;
     int width = grid.length();
@@ -91,6 +91,7 @@ void MainWindow::update(QVector<QVector<char>>& grid, QVector<QString>& words) {
     //Display the data
     for(auto x = 0; x < width; x++) {
         for(auto y = 0; y < height; y++) {
+            //Then call Solver::solve
             char current = grid.at(x).at(y);
             QTableWidgetItem* currentItem = gridWidget->item(x, y);
             currentItem->setText(QString(current));
@@ -100,11 +101,23 @@ void MainWindow::update(QVector<QVector<char>>& grid, QVector<QString>& words) {
     //Update word list
     QTreeWidget* wordWidget = ui->treeWidgetWords;
     wordWidget->clear();
-    for(auto i = 0; i < words.length(); i++) {
-        QTreeWidgetItem* item = new QTreeWidgetItem();
-        qDebug() << words[i];
-        item->setText(0, words[i]);
-        ui->treeWidgetWords->addTopLevelItem(item);
+    //Create the top level items for each vector
+    for(auto i = 0; i < words.length(); ++i)
+    {
+        //Create a topLevelItem "x letters"
+        QVector<Word*> currentWords = words[i];
+        QTreeWidgetItem* current = new QTreeWidgetItem();
+        QString currentText = QString::number(currentWords.first()->length()) + QString(" letters");
+        qDebug() << "Adding words at: " << currentText;
+        current->setText(0, currentText);
+        //Add each word under the topLevelItem
+        for(auto index = 0; index < currentWords.length(); ++index)
+        {
+            Word* word = currentWords[index];
+            current->addChild(word);
+        }
+        //Add the topLevelItem to the tree
+        wordWidget->addTopLevelItem(current);
+        wordWidget->expandAll();
     }
-
 }

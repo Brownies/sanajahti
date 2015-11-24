@@ -2,6 +2,11 @@
 #include "mainwindow.h"
 #include <QApplication>
 
+struct word {
+    QString text;
+    QVector<QPair<int, int> > charPositions;
+};
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);

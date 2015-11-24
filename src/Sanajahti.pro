@@ -16,12 +16,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     imagereader.cpp \
     mainprogram.cpp \
-    solver.cpp
+    solver.cpp \
+    word.cpp
 
 HEADERS  += mainwindow.h \
     imagereader.h \
     mainprogram.h \
-    solver.h
+    solver.h \
+    word.h
 
 FORMS    += mainwindow.ui
 
