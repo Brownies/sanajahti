@@ -5,20 +5,26 @@
 #include <QTextStream>
 #include <locale.h>
 #include "imagereader.h"
-
 #include <QString>
 #include <QFile>
 #include <QImage>
 #include <QPixmap>
-#include <QDir>
 
 ImageReader::ImageReader(QObject *parent) : QObject(parent)
 {
     qDebug() << "Init ImageReader";
 }
 
-//Returns true if the filePath exists and can be read with Tesseract
-//Fills the Grid given as a reference
+/*Returns true if the filePath exists and can be read with Tesseract
+* Fills the Grid given as a reference
+*
+* Scales the given screenshot and crops all the letters into separate pixmaps.
+* (Works only with pictures with the same hight/width-ratio than the ones in the src file)
+* Goes through the vector "letterList" (with the pixmaps) and "reads" the letters one at
+* a time and adds them to the result-string.
+* After that the letters are added to the grid.
+* Tesseract does not recognize Ä/Ö?
+*/
 bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
 {    
     //Create a vector for storing all 16 letters
@@ -30,6 +36,8 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
 
 
     //for-loop for cropping all letters from the image one by one
+    // if the height/width-ratio is different, it won't crop letters properly
+    // checking the ratio beforehand and making separate loops for different ratios could help?
     for(unsigned int i = 0; i < 16; i++){
         //Create a rectangle for cropping each letter
         QRect box(55+(i%4)*74, 199+(i/4)*73, 50, 50);
@@ -38,14 +46,10 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
         letterList.append(letter);
     }
 
-
     //The file path where the letters will be saved before ocr-handling
     QString newFile = "../src/OCRtemps/templetter.png";
 
-
-
     qDebug() << "ImageReader::initData(" << filePath << ", " << grid << ") - NOT IMPLEMENTED";
-
 
     /* OCR
      * To get the needed file:
@@ -53,8 +57,7 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
      * gunzip eng.traineddata.gz
      * sudo mv -v eng.traineddata /usr/share/tesseract-ocr/tessdata/
      *
-     *
-     * */
+     */
 
     //variable for storing the data from the cropped letter images
     char *outText;
@@ -68,15 +71,17 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
         return false;
     }
 
+    // Mode in which tesseract tries to recognize only on character
     api->SetPageSegMode(tesseract::PSM_SINGLE_CHAR);
-    api->SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖ");
+    // List of the letters tesseract will try to find (Ä and Ö could be added to the list
+    // but it won't recognize them anyway)
+    api->SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
     //string for the final grid
     QString result;
     Pix *image;
     //for-loop for reading the letters
     for(unsigned int t = 0; t < 16; t++){
-
         //Save the letter as .png
         QFile file(newFile);
         if(!file.exists()){
@@ -94,15 +99,12 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
         qDebug() << result;
     }
 
-    // Get OCR result
-
     qDebug() << "OCR from image:";
     qDebug() << outText;
-
     qDebug() << "Parsed to QString:";
     qDebug() << result;
-    int i = 0;
 
+    int i = 0;
     //Save OCR-data in grid - HARDCODED 4X4, fix with a general purpose approach
     for(int x = 0; x < 4; x++) {
         for(int y = 0; y < 4; y++) {
@@ -112,6 +114,7 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
             i++;
         }
     }
+
     // Destroy used object and release memory
     api->End();
     delete [] outText;
