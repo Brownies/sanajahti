@@ -41,9 +41,11 @@ MainWindow::MainWindow(QWidget *parent) :
     //Connect TreeWidget item selection to draw the corresponding word on the grid
     connect(ui->treeWidgetWords, &QTreeWidget::itemSelectionChanged, [&]() {
         QTreeWidgetItem* current = ui->treeWidgetWords->selectedItems().first();
-        if(current->childCount() == 0) {
+        if(current->childCount() == 0) { //Selection == Word, draw it on grid
             Word* selected = (Word*) ui->treeWidgetWords->selectedItems().first();
             drawWord(selected);
+        } else { //Header "n letters" -> dont draw anything on grid
+            ui->tableWidgetGrid->clearSelection();
         }
     });
 }
