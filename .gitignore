@@ -2,3 +2,5 @@
 /build*
 .gitignore~
 *.user
+/src/OCRtemps/*
+*.autosave
