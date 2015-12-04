@@ -32,7 +32,22 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
     //Rescale the given image
     QImage img(filePath);
     QPixmap pm;
-    pm = pm.fromImage(img.scaled(384, 512, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+
+
+    int letterSize = 0;
+    int leftPadding = 0;
+    int rightPadding = 0;
+    int topPadding = 0;
+    int bottomPadding = 0;
+
+    //for 3:4 aspect ratio, letters are 222x222 at 1536x2048
+
+    pm = pm.fromImage(img.scaled(1536, 2048, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    letterSize = 222;
+    leftPadding = 222;
+    rightPadding = 67;
+    topPadding = 775;
+    bottomPadding = 67;
 
 
     //for-loop for cropping all letters from the image one by one
@@ -40,8 +55,12 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
     // checking the ratio beforehand and making separate loops for different ratios could help?
     for(unsigned int i = 0; i < 16; i++){
         //Create a rectangle for cropping each letter
-        QRect box(55+(i%4)*74, 199+(i/4)*73, 50, 50);
+        //QRect box(55+(i%4)*74, 199+(i/4)*73, 50, 50);
+        QRect box((leftPadding + (i%4) * (rightPadding + letterSize)),
+                  (topPadding + (i/4) * (letterSize + bottomPadding)), letterSize, letterSize);
         QPixmap letter = pm.copy(box);
+        qDebug() << "x: " << leftPadding + (i%4) * (rightPadding + letterSize);
+        qDebug() << "y: " << topPadding + (i/4) * (letterSize + bottomPadding);
         //Add the pixmap of a letter to the vector for letters
         letterList.append(letter);
     }
@@ -49,7 +68,7 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
     //The file path where the letters will be saved before ocr-handling
     QString newFile = "../src/OCRtemps/templetter.png";
 
-    qDebug() << "ImageReader::initData(" << filePath << ", " << grid << ") - NOT IMPLEMENTED";
+    //qDebug() << "ImageReader::initData(" << filePath << ", " << grid << ") - NOT IMPLEMENTED";
 
     /* OCR
      * To get the needed file:
@@ -66,7 +85,7 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
 
     // Initialize tesseract-ocr with English, setlocale to prevent crash from not finding tesseract (fix that?)
     setlocale (LC_NUMERIC, "C");
-    if (api->Init("/usr/share/tesseract-ocr/", "eng")) {
+    if (api->Init("/usr/share/tesseract-ocr/", "deu")) {
         qDebug() << "Could not initialize tesseract.";
         return false;
     }
@@ -75,7 +94,7 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
     api->SetPageSegMode(tesseract::PSM_SINGLE_CHAR);
     // List of the letters tesseract will try to find (Ä and Ö could be added to the list
     // but it won't recognize them anyway)
-    api->SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    api->SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖ");
 
     //string for the final grid
     QString result;
@@ -93,6 +112,10 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
         file.close();
         // Open input image with leptonica library
         image = pixRead(newFile.toUtf8().constData());
+
+        image = pixContrastTRC(image, image, 0.8f);
+        image = pixScaleLI(image, 2, 2);
+
         api->SetImage(image);
         outText = api->GetUTF8Text();
         result += QString(outText).simplified().replace(" ", "");
