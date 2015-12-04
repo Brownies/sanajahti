@@ -130,7 +130,6 @@ void MainWindow::update(QVector<QVector<char>>& grid, QVector<QVector<Word*>> &w
 }
 
 void MainWindow::inputToGrid() {
-    qDebug() << "MainWindow::inputToGrid() - NOT IMPLEMENTED";
     //Select the grid and start asking for input
     QTableWidget* table = ui->tableWidgetGrid;
     table->setCurrentCell(0, 0);
@@ -142,7 +141,6 @@ void MainWindow::inputToGrid() {
 
 void MainWindow::nextCell() {
     QTableWidget* table = ui->tableWidgetGrid;
-    qDebug() << inputX << ", " << inputY;
     if(inputX < 3) {
         inputX += 1;
     } else {
@@ -164,8 +162,20 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
     if(inputOn) {
         if(event->type()==QEvent::KeyPress) {
             QKeyEvent* key = static_cast<QKeyEvent*>(event);
-            ui->tableWidgetGrid->item(inputY, inputX)->setText(key->text());
-            nextCell();
+            QString input(key->text());
+            QString whitelist("ABCDEFGHIJKLMNOPQRSTUVWXYZÖÄÅ");//Allow ÖÄÅ
+            if(input != "" && whitelist.contains(input, Qt::CaseInsensitive)) {
+                ui->tableWidgetGrid->item(inputY, inputX)->setText(input);
+                nextCell();
+                return true;
+            }
+            if(key->key() == Qt::Key_Escape) {
+                inputOn = false;
+                inputY = 0;
+                inputX = 0;
+                ui->tableWidgetGrid->setCurrentCell(0, 0);
+                return true;
+            }
             return true;
         }
     }
