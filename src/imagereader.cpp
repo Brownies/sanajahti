@@ -41,6 +41,7 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
     int bottomPadding = 0;
 
     //for 3:4 aspect ratio, letters are 222x222 at 1536x2048
+
     pm = pm.fromImage(img.scaled(1536, 2048, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
     letterSize = 222;
     leftPadding = 222;
@@ -111,7 +112,10 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
         file.close();
         // Open input image with leptonica library
         image = pixRead(newFile.toUtf8().constData());
-        pixContrastTRC(image, image, 0.7f);
+
+        image = pixContrastTRC(image, image, 0.8f);
+        image = pixScaleLI(image, 2, 2);
+
         api->SetImage(image);
         outText = api->GetUTF8Text();
         result += QString(outText).simplified().replace(" ", "");
