@@ -66,7 +66,7 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
 
     // Initialize tesseract-ocr with English, setlocale to prevent crash from not finding tesseract (fix that?)
     setlocale (LC_NUMERIC, "C");
-    if (api->Init("usr/share/tesseract-ocr/tessdata/eng.traineddata", NULL)) {
+    if (api->Init("/usr/share/tesseract-ocr/", "eng")) {
         qDebug() << "Could not initialize tesseract.";
         return false;
     }
