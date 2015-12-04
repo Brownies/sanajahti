@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QDropEvent>
 #include <QMimeData>
+#include <QTextStream>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -22,6 +23,12 @@ MainWindow::MainWindow(QWidget *parent) :
     css.open(QFile::ReadOnly);
     QString stylesheet = QLatin1String(css.readAll());
     qApp->setStyleSheet(stylesheet);
+    //Install the custom event filter
+    ui->tableWidgetGrid->installEventFilter(this);
+    //Connect fileToGrid-pushButton
+    connect(ui->buttonInput, &QAbstractButton::clicked, [&]() {
+        inputToGrid();
+    });
 }
 
 
@@ -120,4 +127,47 @@ void MainWindow::update(QVector<QVector<char>>& grid, QVector<QVector<Word*>> &w
         wordWidget->addTopLevelItem(current);
         wordWidget->expandAll();
     }
+}
+
+void MainWindow::inputToGrid() {
+    qDebug() << "MainWindow::inputToGrid() - NOT IMPLEMENTED";
+    //Select the grid and start asking for input
+    QTableWidget* table = ui->tableWidgetGrid;
+    table->setCurrentCell(0, 0);
+    ui->tableWidgetGrid->setFocus();
+    inputOn = true;
+    //table->itemAt(0, 0)->setText(QString(newChar));
+
+}
+
+void MainWindow::nextCell() {
+    QTableWidget* table = ui->tableWidgetGrid;
+    qDebug() << inputX << ", " << inputY;
+    if(inputX < 3) {
+        inputX += 1;
+    } else {
+        if(inputY >= 3) {
+            //End filling
+            inputOn = false;
+            inputX = 0;
+            inputY = 0;
+        } else {
+            inputX = 0;
+            inputY += 1;
+        }
+    }
+    table->setCurrentCell(inputY, inputX);
+    ui->tableWidgetGrid->setFocus();
+}
+
+bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
+    if(inputOn) {
+        if(event->type()==QEvent::KeyPress) {
+            QKeyEvent* key = static_cast<QKeyEvent*>(event);
+            ui->tableWidgetGrid->item(inputY, inputX)->setText(key->text());
+            nextCell();
+            return true;
+        }
+    }
+    return QObject::eventFilter(obj, event);
 }

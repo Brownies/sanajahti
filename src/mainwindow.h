@@ -19,11 +19,18 @@ public:
     void dropEvent(QDropEvent* event);
     void init(QVector<QVector<char> > &grid);
     void update(QVector<QVector<char>>& grid, QVector<QVector<Word *> > &words);
+    void inputToGrid();
+    void nextCell();
+protected:
+    bool eventFilter(QObject* obj, QEvent* event);
 
 signals:
     void fileDropped(QString filePath);
 private:
     Ui::MainWindow *ui;
+    bool inputOn = false;
+    int inputX = 0;
+    int inputY = 0;
 };
 
 #endif // MAINWINDOW_H
