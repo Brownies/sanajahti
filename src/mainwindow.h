@@ -21,6 +21,7 @@ public:
     void update(QVector<QVector<char>>& grid, QVector<QVector<Word *> > &words);
     void inputToGrid();
     void nextCell();
+    void drawWord(Word* selected);
 protected:
     bool eventFilter(QObject* obj, QEvent* event);
 

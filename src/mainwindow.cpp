@@ -38,6 +38,14 @@ MainWindow::MainWindow(QWidget *parent) :
                                                         "Images (*.png *.jpg);;Text (*.txt)");
         emit fileDropped(fileName);
     });
+    //Connect TreeWidget item selection to draw the corresponding word on the grid
+    connect(ui->treeWidgetWords, &QTreeWidget::itemSelectionChanged, [&]() {
+        QTreeWidgetItem* current = ui->treeWidgetWords->selectedItems().first();
+        if(current->childCount() == 0) {
+            Word* selected = (Word*) ui->treeWidgetWords->selectedItems().first();
+            drawWord(selected);
+        }
+    });
 }
 
 
@@ -165,6 +173,14 @@ void MainWindow::nextCell() {
     }
     table->setCurrentCell(inputY, inputX);
     ui->tableWidgetGrid->setFocus();
+}
+
+void MainWindow::drawWord(Word* selected) {
+    QVector<QPair<int, int> > positions = selected->getPosition();
+    qDebug() << "Drawing word in grid at: " << positions;
+    for(QPair<int, int> pair : positions) {
+        ui->tableWidgetGrid->selectionModel()->select(ui->tableWidgetGrid->model()->index(pair.first, pair.second), QItemSelectionModel::Select);
+    }
 }
 
 bool MainWindow::eventFilter(QObject* obj, QEvent* event) {

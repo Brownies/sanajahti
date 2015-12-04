@@ -15,9 +15,12 @@ bool Solver::solve(QVector<QVector<char>>& grid, QVector<QVector<Word*> >& words
     //TEST WORDS
     //Create a pair where each character of the word is found in the grid
     QPair<int, int> testPair(0, 0);
+    QPair<int, int> testPair2(0, 1);
+    QPair<int, int> testPair3(0, 2);
+    QPair<int, int> testPair4(1, 2);
     //Create a vector for the pairs in the corresponding order (position first letter of the word first)
     QVector<QPair<int, int>> testVect;
-    testVect.append(testPair);
+    testVect << testPair << testPair2 << testPair3 << testPair4;
     //Create some words for testing purposes
     Word* one = new Word( QString("ONE"), testVect);
     Word* two = new Word(QString("TWO"), testVect);
