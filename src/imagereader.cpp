@@ -32,7 +32,7 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
     //Rescale the given image
     QImage img(filePath);
     QPixmap pm;
-    pm = pm.fromImage(img.scaled(384, 512, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    pm = pm.fromImage(img.scaled(1536, 2048, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
 
     //for-loop for cropping all letters from the image one by one
@@ -40,7 +40,8 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
     // checking the ratio beforehand and making separate loops for different ratios could help?
     for(unsigned int i = 0; i < 16; i++){
         //Create a rectangle for cropping each letter
-        QRect box(55+(i%4)*74, 199+(i/4)*73, 50, 50);
+        //QRect box(55+(i%4)*74, 199+(i/4)*73, 50, 50);
+        QRect box(220+(i%4)*296, 796+(i/4)*292, 200, 200);
         QPixmap letter = pm.copy(box);
         //Add the pixmap of a letter to the vector for letters
         letterList.append(letter);
@@ -66,7 +67,7 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
 
     // Initialize tesseract-ocr with English, setlocale to prevent crash from not finding tesseract (fix that?)
     setlocale (LC_NUMERIC, "C");
-    if (api->Init("/usr/share/tesseract-ocr/", "eng")) {
+    if (api->Init("/usr/share/tesseract-ocr/", "deu")) {
         qDebug() << "Could not initialize tesseract.";
         return false;
     }
@@ -75,7 +76,7 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
     api->SetPageSegMode(tesseract::PSM_SINGLE_CHAR);
     // List of the letters tesseract will try to find (Ä and Ö could be added to the list
     // but it won't recognize them anyway)
-    api->SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    api->SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖ");
 
     //string for the final grid
     QString result;
