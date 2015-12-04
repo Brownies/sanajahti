@@ -1,6 +1,7 @@
 #include <QStringList>
 #include <QList>
 #include <QDebug>
+#include <QFileDialog>
 #include <QDropEvent>
 #include <QMimeData>
 #include <QTextStream>
@@ -28,6 +29,14 @@ MainWindow::MainWindow(QWidget *parent) :
     //Connect fileToGrid-pushButton
     connect(ui->buttonInput, &QAbstractButton::clicked, [&]() {
         inputToGrid();
+    });
+    //Connect fileToGrid-button
+    connect(ui->buttonFile, &QAbstractButton::clicked, [&]() {
+        QString fileName = QFileDialog::getOpenFileName(this,
+                                                        "Open file for grid",
+                                                        "/home/",
+                                                        "Images (*.png *.jpg);;Text (*.txt)");
+        emit fileDropped(fileName);
     });
 }
 
