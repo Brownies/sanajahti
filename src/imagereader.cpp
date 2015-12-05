@@ -26,7 +26,7 @@ ImageReader::ImageReader(QObject *parent) : QObject(parent)
 * After that the letters are added to the grid.
 * Tesseract does not recognize Ä/Ö?
 */
-bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
+bool ImageReader::initData(QString filePath, QVector<QVector<QChar>>& grid)
 {    
     //Create a vector for storing all 16 letters
     QVector<QPixmap> letterList;
@@ -60,8 +60,8 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
         QRect box((leftPadding + (i%4) * (rightPadding + letterSize)),
                   (topPadding + (i/4) * (letterSize + bottomPadding)), letterSize, letterSize);
         QPixmap letter = pm.copy(box);
-        qDebug() << "x: " << leftPadding + (i%4) * (rightPadding + letterSize);
-        qDebug() << "y: " << topPadding + (i/4) * (letterSize + bottomPadding);
+        //qDebug() << "x: " << leftPadding + (i%4) * (rightPadding + letterSize);
+        //qDebug() << "y: " << topPadding + (i/4) * (letterSize + bottomPadding);
         //Add the pixmap of a letter to the vector for letters
         letterList.append(letter);
     }
@@ -78,7 +78,7 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
      */
 
     //variable for storing the data from the cropped letter images
-    char *outText;
+    QString outText;
 
     tesseract::TessBaseAPI *api = new tesseract::TessBaseAPI();
 
@@ -118,13 +118,13 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
 
         api->SetImage(image);
         outText = api->GetUTF8Text();
-        result += QString(outText).simplified().replace(" ", "");
-        qDebug() << result;
+        result += outText.simplified().replace(" ", "");
+        //qDebug() << result;
     }
 
-    qDebug() << "OCR from image:";
-    qDebug() << outText;
-    qDebug() << "Parsed to QString:";
+    //qDebug() << "OCR from image:";
+    //qDebug() << outText;
+    qDebug() << "OCR result:";
     qDebug() << result;
 
     int i = 0;
@@ -132,15 +132,15 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
     for(int x = 0; x < 4; x++) {
         for(int y = 0; y < 4; y++) {
             QChar current = result[i];
-            char currentChar = current.toLatin1();
+            QChar currentChar = current.toLatin1();
             grid[x][y] = currentChar;
             i++;
         }
     }
-
+    qDebug() << "OCR data saved to grid";
     // Destroy used object and release memory
     api->End();
-    delete [] outText;
     pixDestroy(&image);
+    qDebug() << "returning from OCR";
     return true;
 }
