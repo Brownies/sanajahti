@@ -36,7 +36,9 @@ MainWindow::MainWindow(QWidget *parent) :
                                                         "Open file for grid",
                                                         "/home/",
                                                         "Images (*.png *.jpg);;Text (*.txt)");
-        emit fileDropped(fileName);
+        if(!fileName.isEmpty()) {
+            emit fileDropped(fileName);
+        }
     });
     //Connect TreeWidget item selection to draw the corresponding word on the grid
     connect(ui->treeWidgetWords, &QTreeWidget::itemSelectionChanged, [&]() {
@@ -46,6 +48,14 @@ MainWindow::MainWindow(QWidget *parent) :
             drawWord(selected);
         } else { //Header "n letters" -> dont draw anything on grid
             ui->tableWidgetGrid->clearSelection();
+        }
+    });
+    //Limit maximum selected grid items to 1
+    connect(ui->tableWidgetGrid->selectionModel(),&QItemSelectionModel::selectionChanged,[=]() {//with lambda
+        if(ui->tableWidgetGrid->selectionModel()->selectedIndexes().size() > 1)
+        {
+            QList<QModelIndex> lst = ui->tableWidgetGrid->selectionModel()->selectedIndexes();
+            ui->tableWidgetGrid->selectionModel()->select(lst.first(),QItemSelectionModel::Deselect);
         }
     });
 }
@@ -206,6 +216,21 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
                 return true;
             }
             return true;
+        }
+    }
+    if(ui->tableWidgetGrid->selectedItems().length() > 0) {
+        if(event->type()==QEvent::KeyPress) {
+            QKeyEvent* key = static_cast<QKeyEvent*>(event);
+            QString input(key->text());
+            QString whitelist("ABCDEFGHIJKLMNOPQRSTUVWXYZÖÄÅ");//Allow ÖÄÅ
+            if(input != "" && whitelist.contains(input, Qt::CaseInsensitive)) {
+                ui->tableWidgetGrid->selectedItems().first()->setText(input);
+                return true;
+            }
+            if(key->key() == Qt::Key_Delete || key->key() == Qt::Key_Backspace) {
+                ui->tableWidgetGrid->selectedItems().first()->setText(QString(" "));
+                return true;
+            }
         }
     }
     return QObject::eventFilter(obj, event);
