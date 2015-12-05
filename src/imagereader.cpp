@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QImage>
 #include <QPixmap>
+#include <QDir>
 
 ImageReader::ImageReader(QObject *parent) : QObject(parent)
 {
@@ -65,8 +66,6 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
         letterList.append(letter);
     }
 
-    //The file path where the letters will be saved before ocr-handling
-    QString newFile = "../src/OCRtemps/templetter.png";
 
     //qDebug() << "ImageReader::initData(" << filePath << ", " << grid << ") - NOT IMPLEMENTED";
 
@@ -102,13 +101,14 @@ bool ImageReader::initData(QString filePath, QVector<QVector<char>>& grid)
     //for-loop for reading the letters
     for(unsigned int t = 0; t < 16; t++){
         //Save the letter as .png
-        QFile file(newFile);
-        if(!file.exists()){
-            //the file did not exist
-        } else {
-            file.open(QIODevice::WriteOnly);
-            letterList[t].save(newFile, "png");
+        QString newFolder = "../src/OCRtemps/";
+        QString newFile = "../src/OCRtemps/templetter.png";
+        if(!QDir(newFolder).exists()) {
+            QDir().mkpath(newFolder);
         }
+        QFile file(newFile);
+        file.open(QIODevice::WriteOnly);
+        letterList[t].save(newFile, "png");
         file.close();
         // Open input image with leptonica library
         image = pixRead(newFile.toUtf8().constData());
