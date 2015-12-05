@@ -91,7 +91,7 @@ void MainWindow::dropEvent(QDropEvent* event)
     }
 }
 
-void MainWindow::init(QVector<QVector<char>>& grid)
+void MainWindow::init(QVector<QVector<QChar>>& grid)
 {
     //Init table
     QTableWidget* gridWidget = ui->tableWidgetGrid;
@@ -105,7 +105,7 @@ void MainWindow::init(QVector<QVector<char>>& grid)
     //Display the data
     for(auto x = 0; x < width; x++) {
         for(auto y = 0; y < height; y++) {
-            char current = grid.at(x).at(y);
+            QChar current = grid.at(x).at(y);
             QTableWidgetItem* newItem = new QTableWidgetItem(current);
             newItem->setTextAlignment(Qt::AlignCenter);
             gridWidget->setItem(x, y, newItem);
@@ -114,7 +114,7 @@ void MainWindow::init(QVector<QVector<char>>& grid)
     gridWidget->viewport()->update();
 }
 
-void MainWindow::update(QVector<QVector<char>>& grid, QVector<QVector<Word*>> &words) {
+void MainWindow::update(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>> &words) {
     //Update table
     QTableWidget* gridWidget = ui->tableWidgetGrid;
     int width = grid.length();
