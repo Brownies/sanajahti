@@ -118,7 +118,7 @@ void MainWindow::update(QVector<QVector<char>>& grid, QVector<QVector<Word*>> &w
     for(auto x = 0; x < width; x++) {
         for(auto y = 0; y < height; y++) {
             //Then call Solver::solve
-            char current = grid.at(x).at(y);
+            QChar current = QChar(grid.at(x).at(y));
             QTableWidgetItem* currentItem = gridWidget->item(x, y);
             currentItem->setText(QString(current));
         }
@@ -181,7 +181,9 @@ void MainWindow::drawWord(Word* selected) {
     QVector<QPair<int, int> > positions = selected->getPosition();
     qDebug() << "Drawing word in grid at: " << positions;
     for(QPair<int, int> pair : positions) {
-        ui->tableWidgetGrid->selectionModel()->select(ui->tableWidgetGrid->model()->index(pair.first, pair.second), QItemSelectionModel::Select);
+        ui->tableWidgetGrid->selectionModel()->select(
+                    ui->tableWidgetGrid->model()->index(pair.first, pair.second),
+                    QItemSelectionModel::Select);
     }
 }
 
