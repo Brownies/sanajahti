@@ -33,6 +33,7 @@ void MainProgram::makeGrid(QString filePath)
     if(imageRead) {
         qDebug() << "OCR was successful";
         solver->solve(grid, words);
+        qDebug() << "Solved: " << grid;
         emit gridUpdated();
     }
     //Or read from a text file
