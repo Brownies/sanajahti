@@ -14,7 +14,7 @@ class MainProgram : public QObject
 public:
     explicit MainProgram();
     void makeGrid(QString filePath);
-    QVector<QVector<char>> grid;
+    QVector<QVector<QChar>> grid;
     QVector<QVector<Word*> > words;
 
 signals:

@@ -26,28 +26,34 @@ Solver::Solver(QObject *parent) : QObject(parent)
 const int size = 4;
 
 //Solves the words in the given grid
-bool Solver::solve(QVector<QVector<char>>& grid, QVector<QVector<Word*> >& words)
+bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words)
 {
+    qDebug() << "Solver::solve called";
 
-    std::vector<std::string> words2;
+    QVector<QString> words2;
 
-    QFile inputFile("/home/ovh/sanajahti3/src/suomen_sanoja.txt");
+    QFile inputFile("../dictionaries/english.dic");
     if (inputFile.open(QIODevice::ReadOnly))
     {
        QTextStream in(&inputFile);
        while (!in.atEnd())
        {
           QString line = in.readLine();
-          words2.push_back(line.toStdString());
+          words2.push_back(line);
        }
        inputFile.close();
+       qDebug() << "dictionary read successfully";
+    }
+    else {
+        qDebug() << "Failed to open dictionary file";
+        return false;
     }
 
     //tallennetaan grid vectoriin, rivit kerrallaan
-    std::vector<std::string> grid2;
-    std::set<char> chars;
+    QVector<QString> grid2;
+    std::set<QChar> chars;
     for(int i = 0; i < size; i++) {
-        std::string line = "";
+        QString line = "";
         for(int j = 0; j < size; j++) {
             line += grid[i][j];
             chars.insert(grid[i][j]);
@@ -56,11 +62,11 @@ bool Solver::solve(QVector<QVector<char>>& grid, QVector<QVector<Word*> >& words
     }
 
     //charmap contains char -> Set(coordinates) example: 'S' -> Set(00, 31)
-    std::map<char, std::set<std::pair<int,int>>> charMap;
+    std::map<QChar, std::set<std::pair<int,int>>> charMap;
     for(int i = 0; i < size; i++) {
         for(int j = 0; j < size; j++) {
 
-            char c = grid2[i][j];
+            QChar c = grid2[i][j];
 
             //katsotaan ekaks löytyykö setistä jo kyseinen kirjain, jos ei löydy
             //niin luodaan sille avain-arvo pari
@@ -87,14 +93,14 @@ bool Solver::solve(QVector<QVector<char>>& grid, QVector<QVector<Word*> >& words
     }
 
     //filteröidään ne sanat
-    std::vector<std::string> finalWords;
+    QVector<QString> finalWords;
     //jokainen sana läpi
     for(auto str : words2) {
         int i = 0;
         int l = str.length();
         bool found = false;
         //uppercaseen
-        transform(str.begin(), str.end(),str.begin(), ::toupper);
+        str = str.toUpper();
         //käydään sanan kirjaimet läpi ja jos löytyy kirjain mitä ei ole gridissä
         //siirrytään seuraavaan sanaan
         while (i < l && !found) {
@@ -113,7 +119,7 @@ bool Solver::solve(QVector<QVector<char>>& grid, QVector<QVector<Word*> >& words
     //itse ohjelman ajo, käydään jokainen tutkittava sana läpi
 
     //tallennetaan wordListiin sanat, mitkä löytyy gridistä
-    std::vector<std::pair<std::string, std::vector<std::pair<int,int>>>> wordList;
+    QVector<std::pair<QString, QVector<std::pair<int,int>>>> wordList;
     for(auto word : finalWords) {
         //startsiin tallennetaan kaikki koordinaatit, mistä tuktkittavan
         //ensimmäinen kirjain löytyy
@@ -125,13 +131,13 @@ bool Solver::solve(QVector<QVector<char>>& grid, QVector<QVector<Word*> >& words
         for(auto start : starts) {
             //path sisältää "reitin" mitä pitkin sana on löytynyt
             //TODO: palauta jotenkin reitti (UI hommiin)
-            std::vector<std::pair<int,int>> path;
+            QVector<std::pair<int,int>> path;
             path.push_back(start);
             //kutsutaan inneria, counter = 0, path = aloituspiste, start = aloituspiste
             //wordFound = false, word = word ja charMap = aiemmin luotu charMap
             //koska funktioita ei voi nestata mainin sisään, pitää esim
             //charMap viedä tätä kautta parametrina innerille
-            std::vector<std::pair<int,int>> finalPath;
+            QVector<std::pair<int,int>> finalPath;
             finalPath = inner(0, path, start, wordFound, word, charMap);
             //if word was found from grid, add it to 'wordList'
             if(wordFound) {
@@ -142,25 +148,28 @@ bool Solver::solve(QVector<QVector<char>>& grid, QVector<QVector<Word*> >& words
 
     //loppujärjestämiset yms
 
-    std::vector<std::string> tempWordList;
+    QVector<QString> tempWordList;
     //joudutaan tekemään uusi sanalista sorttausta ja duplikaattien poistoa
     //varten, jonka jälkeen haetaan pathit takaisin kiinni
 
-    for(unsigned int i = 0; i < wordList.size(); i++) {
+    for(int i = 0; i < wordList.size(); i++) {
         tempWordList.push_back(wordList[i].first);
     }
 
     //sortataan sanat ja poistetaan duplikaatit
-    sort(tempWordList.begin(),tempWordList.end());
-    tempWordList.erase( unique( tempWordList.begin(), tempWordList.end() ), tempWordList.end() );
+    //a dirty hack to remove duplicates
+    auto tempset = tempWordList.toList().toSet();
+    tempWordList = tempset.toList().toVector();
+    qSort(tempWordList);
+    //tempWordList.erase( unique( tempWordList.begin(), tempWordList.end() ), tempWordList.end() );
     //sort(tempWordList.begin(),tempWordList.end(), compare); TODO: compare ei toimi, sanat ei järkässä
-    reverse(tempWordList.begin(),tempWordList.end());
+    std::reverse(tempWordList.begin(),tempWordList.end());
 
     //lisätään pathit takaisin
-    std::vector<std::pair<std::string, std::vector<std::pair<int,int>>>> finalWordList;
-    for(unsigned int i = 0; i < tempWordList.size(); i++) {
-        std::string s = tempWordList[i];
-        for(unsigned int j = 0; j < wordList.size(); i++) {
+    QVector<std::pair<QString, QVector<std::pair<int,int>>>> finalWordList;
+    for(int i = 0; i < tempWordList.size(); i++) {
+        QString s = tempWordList[i];
+        for(int j = 0; j < wordList.size(); i++) {
             if(wordList[j].first == s) {
                 finalWordList.push_back(make_pair(s, wordList[j].second));
             }
@@ -169,14 +178,14 @@ bool Solver::solve(QVector<QVector<char>>& grid, QVector<QVector<Word*> >& words
 
     //luodaan Word oliot ja lisätään ne lopulliseen QVectoriin
     QVector<Word*> kaikki;
-    for(unsigned int i = 0; i < finalWordList.size(); i++) {
+    for(int i = 0; i < finalWordList.size(); i++) {
         QVector<QPair<int, int>> qVec;
-        std::vector<std::pair<int, int>> p = finalWordList[i].second;
-        for(unsigned int j = 0; j < p.size(); j++) {
+        auto p = finalWordList[i].second;
+        for(int j = 0; j < p.size(); j++) {
             qVec.push_back(qMakePair(p[j].first,p[j].second));
         }
-        std::string tmp = finalWordList[i].first;
-        Word* w = new Word(QString::fromStdString(tmp), qVec);
+        QString tmp = finalWordList[i].first;
+        Word* w = new Word(tmp, qVec);
         kaikki.append(w);
     }
 
@@ -191,13 +200,13 @@ bool Solver::solve(QVector<QVector<char>>& grid, QVector<QVector<Word*> >& words
     return true;
 }
 
-std::vector<std::pair<int,int>> Solver::adjacent(int x, int y, char c,
+QVector<std::pair<int,int>> Solver::adjacent(int x, int y, QChar c,
                                                  std::pair<int,int> prev,
-                                                 std::vector<std::pair<int,int>> path,
-                                                 std::map<char, std::set<std::pair<int,int>>> cMap)
+                                                 QVector<std::pair<int,int>> path,
+                                                 std::map<QChar, std::set<std::pair<int,int>>> cMap)
     {
         //tungetaan adja vectoriin kaikki viereiset ruudut
-        std::vector<std::pair<int,int>> adja;
+        QVector<std::pair<int,int>> adja;
         adja.push_back(std::make_pair(x-1,y-1));
         adja.push_back(std::make_pair(x-1,y));
         adja.push_back(std::make_pair(x-1,y+1));
@@ -206,12 +215,13 @@ std::vector<std::pair<int,int>> Solver::adjacent(int x, int y, char c,
         adja.push_back(std::make_pair(x+1,y-1));
         adja.push_back(std::make_pair(x+1,y));
         adja.push_back(std::make_pair(x+1,y+1));
-        std::vector<std::pair<int,int>> filtered;
+        QVector<std::pair<int,int>> filtered;
 
         //käydään läpi adja vectori ja lisätään filterediin vain ne, mitkä ovat ruudukon sisällä, eivätkä ole pathissa
         //ja täytyy olla haluttu kirjain
         for(auto it = adja.begin(); it != adja.end(); ++it) {
-            if(it->first > -1 && it->first < size && it->second > -1 && it->second < size && !(it->first == prev.first && it->second == prev.second)) {
+            if(it->first > -1 && it->first < size && it->second > -1 && it->second < size &&
+               !(it->first == prev.first && it->second == prev.second)) {
                 bool inPath = false;
                 for(auto p = path.begin(); p != path.end(); ++p) {
                     if(*it == *p) {
@@ -235,11 +245,11 @@ std::vector<std::pair<int,int>> Solver::adjacent(int x, int y, char c,
         return filtered;
     }
 
-std::vector<std::pair<int,int>> Solver::inner(int counter,
-                                               std::vector<std::pair<int,int>> path,
+QVector<std::pair<int,int>> Solver::inner(int counter,
+                                               QVector<std::pair<int,int>> path,
                                                std::pair<int,int> previous,
-                                               bool& wordFound, std::string word,
-                                               std::map<char, std::set<std::pair<int,int>>> cMap) {
+                                               bool& wordFound, QString word,
+                                               std::map<QChar, std::set<std::pair<int,int>>> cMap) {
     //jos counter tarpeeksi iso, ollaan löydetty sana
     int length = word.length();
     if(counter == length -1) {
@@ -251,11 +261,11 @@ std::vector<std::pair<int,int>> Solver::inner(int counter,
         std::pair<int,int> current;
         current = path.back();
         int c = counter + 1;
-        std::vector<std::pair<int,int>> adj;
+        QVector<std::pair<int,int>> adj;
         adj = adjacent(current.first,current.second,word[c], previous, path, cMap);
 
         for(auto branch : adj) {
-            std::vector<std::pair<int,int>> newPath;
+            QVector<std::pair<int,int>> newPath;
             newPath = path;
             newPath.push_back(branch);
             inner(c, newPath, current, wordFound, word, cMap);

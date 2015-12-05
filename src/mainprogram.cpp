@@ -7,8 +7,8 @@ MainProgram::MainProgram() : QObject()
     imgReader = new ImageReader(this);
     solver = new Solver(this);
     //Init data for grid
-    char space = ' ';
-    QVector<char> empty(4, space);
+    QChar space = ' ';
+    QVector<QChar> empty(4, space);
     grid.fill(empty, 4);
     qDebug() << "Grid is: " << grid;
     //Init data for words (TEST)
@@ -17,11 +17,14 @@ MainProgram::MainProgram() : QObject()
 //Fills currentGrid with the data from the file if possible
 void MainProgram::makeGrid(QString filePath)
 {
-    qDebug() << "MainProgram::makeGrid(" << filePath << ") - NOT IMPLEMENTED";
+    qDebug() << "MainProgram::makeGrid(" << filePath << " )";
     //Do different things based on the filetype
     //Parse an image with Tesseract
+    qDebug() << "start OCR";
     bool imageRead = imgReader->initData(filePath, grid);
+    qDebug() << "OCR finished";
     if(imageRead) {
+        qDebug() << "OCR was successful";
         solver->solve(grid, words);
         emit gridUpdated();
     }
