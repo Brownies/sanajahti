@@ -42,7 +42,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
           words2.push_back(line);
        }
        inputFile.close();
-       qDebug() << "dictionary read successfully";
+       qDebug() << "dictionary read successful";
     }
     else {
         qDebug() << "Failed to open dictionary file";
@@ -60,6 +60,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
         }
         grid2.push_back(line);
     }
+    qDebug() << "grid saved to a vector";
 
     //charmap contains char -> Set(coordinates) example: 'S' -> Set(00, 31)
     std::map<QChar, std::set<std::pair<int,int>>> charMap;
@@ -91,6 +92,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
 
         }
     }
+    qDebug() << "charmap created";
 
     //filteröidään ne sanat
     QVector<QString> finalWords;
@@ -115,11 +117,13 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
             finalWords.push_back(str);
         }
     }
+    qDebug() << "early word filtering done";
 
     //itse ohjelman ajo, käydään jokainen tutkittava sana läpi
 
     //tallennetaan wordListiin sanat, mitkä löytyy gridistä
     QVector<std::pair<QString, QVector<std::pair<int,int>>>> wordList;
+    qDebug() << "start searching for words in grid";
     for(auto word : finalWords) {
         //startsiin tallennetaan kaikki koordinaatit, mistä tuktkittavan
         //ensimmäinen kirjain löytyy
@@ -145,6 +149,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
             }
         }
     }
+    qDebug() << "finished searching for words in grid";
 
     //loppujärjestämiset yms
 
@@ -158,25 +163,30 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
 
     //sortataan sanat ja poistetaan duplikaatit
     //a dirty hack to remove duplicates
+    qDebug() << "remove duplicates, sort and reverse word list...";
     auto tempset = tempWordList.toList().toSet();
     tempWordList = tempset.toList().toVector();
     qSort(tempWordList);
     //tempWordList.erase( unique( tempWordList.begin(), tempWordList.end() ), tempWordList.end() );
     //sort(tempWordList.begin(),tempWordList.end(), compare); TODO: compare ei toimi, sanat ei järkässä
     std::reverse(tempWordList.begin(),tempWordList.end());
+    qDebug() << "... done.";
 
     //lisätään pathit takaisin
+    qDebug() << "start adding paths back to words";
     QVector<std::pair<QString, QVector<std::pair<int,int>>>> finalWordList;
     for(int i = 0; i < tempWordList.size(); i++) {
         QString s = tempWordList[i];
-        for(int j = 0; j < wordList.size(); i++) {
+        for(int j = 0; j < wordList.size(); j++) {
             if(wordList[j].first == s) {
                 finalWordList.push_back(make_pair(s, wordList[j].second));
             }
         }
     }
+    qDebug() << "paths added to words";
 
     //luodaan Word oliot ja lisätään ne lopulliseen QVectoriin
+    qDebug() << "start creating Word objects";
     QVector<Word*> kaikki;
     for(int i = 0; i < finalWordList.size(); i++) {
         QVector<QPair<int, int>> qVec;
@@ -188,15 +198,15 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
         Word* w = new Word(tmp, qVec);
         kaikki.append(w);
     }
-
+    qDebug() << "Word objects created";
     //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-    qDebug() << "Solver::Solve( " << grid << " )";
     //Remove the old words
     words.clear();
 
     //kaikki = solverin hakemat sanat
     words.append(kaikki);
+    qDebug() << "returning from solver";
     return true;
 }
 
