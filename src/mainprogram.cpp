@@ -17,17 +17,14 @@ MainProgram::MainProgram() : QObject()
 //Fills currentGrid with the data from the file if possible
 void MainProgram::makeGrid(QString filePath)
 {
-<<<<<<< HEAD
     //Empty grid & words
     //Init data for grid
     char space = ' ';
-    QVector<char> empty(4, space);
+    QVector<QChar> empty(4, space);
     grid.fill(empty, 4);
     words.clear();
     qDebug() << "MainProgram::makeGrid(" << filePath << ") - NOT IMPLEMENTED";
-=======
     qDebug() << "MainProgram::makeGrid(" << filePath << " )";
->>>>>>> eb63a008ae3e2090c29ab544f943bc55d02ddf46
     //Do different things based on the filetype
     //Parse an image with Tesseract
     qDebug() << "start OCR";

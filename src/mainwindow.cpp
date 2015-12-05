@@ -127,10 +127,10 @@ void MainWindow::update(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>> &
     //Display the data
     for(auto x = 0; x < width; x++) {
         for(auto y = 0; y < height; y++) {
-            //Then call Solver::solve
             QChar current = QChar(grid.at(x).at(y));
             QTableWidgetItem* currentItem = gridWidget->item(x, y);
             currentItem->setText(QString(current));
+            qDebug() << current << ":" << currentItem->text();
         }
     }
     gridWidget->viewport()->update();
