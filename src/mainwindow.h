@@ -22,21 +22,13 @@ public:
     void inputToGrid();
     void nextCell();
     void drawWord(Word* selected);
-    void drawNext();
 protected:
     bool eventFilter(QObject* obj, QEvent* event);
-    void timerEvent(QTimerEvent *event);
 
 signals:
     void fileDropped(QString filePath);
 private:
-    int timerID;
-    bool timerOn = false;
-
-protected:
     Ui::MainWindow *ui;
-    QVector<QPair<int, int> > currentWord;
-    QVector<QPair<int, int> >::iterator currentIterator;
     bool inputOn = false;
     int inputX = 0;
     int inputY = 0;
