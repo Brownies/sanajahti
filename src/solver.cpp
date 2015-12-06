@@ -69,7 +69,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
 
             QChar c = grid2[i][j];
 
-            //katsotaan ekaks lÃ¶ytyykÃ¶ setistÃ¤ jo kyseinen kirjain, jos ei lÃ¶ydy
+            //katsotaan ekaks löytyykö setistä jo kyseinen kirjain, jos ei löydy
             //niin luodaan sille avain-arvo pari
             if (charMap.find (c) == charMap.end()) {
                 std::pair<int,int> pari;
@@ -78,7 +78,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
                 koordinaatit.insert(pari);
                 charMap[c] = koordinaatit;
             }
-            //jos lÃ¶ytyy jo, niin pÃ¤ivitetÃ¤Ã¤n vanhan arvoa
+            //jos löytyy jo, niin päivitetään vanhan arvoa
             else {
                 std::set<std::pair<int,int>> vanhat;
                 vanhat = charMap.find(c)->second;
@@ -94,24 +94,24 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
     }
     qDebug() << "charmap created";
 
-    //filterÃ¶idÃ¤Ã¤n ne sanat
+    //filteröidään ne sanat
     QVector<QString> finalWords;
-    //jokainen sana lÃ¤pi
+    //jokainen sana läpi
     for(auto str : words2) {
         int i = 0;
         int l = str.length();
         bool found = false;
         //uppercaseen
         str = str.toUpper();
-        //kÃ¤ydÃ¤Ã¤n sanan kirjaimet lÃ¤pi ja jos lÃ¶ytyy kirjain mitÃ¤ ei ole gridissÃ¤
-        //siirrytÃ¤Ã¤n seuraavaan sanaan
+        //käydään sanan kirjaimet läpi ja jos löytyy kirjain mitä ei ole gridissä
+        //siirrytään seuraavaan sanaan
         while (i < l && !found) {
             if(chars.find(str[i]) == chars.end()) {
                 found = true;
             }
             i++;
         }
-        //jos kaikki kirjaimet ovat gridissÃ¤ ja pituus yli 2, lisÃ¤tÃ¤Ã¤n lopullisten
+        //jos kaikki kirjaimet ovat gridissä ja pituus yli 2, lisätään lopullisten
         //tutkittavien sanojen listaan
         if(!found && l > 2) {
             finalWords.push_back(str);
@@ -119,76 +119,43 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
     }
     qDebug() << "early word filtering done";
 
-    //itse ohjelman ajo, kÃ¤ydÃ¤Ã¤n jokainen tutkittava sana lÃ¤pi
+    //itse ohjelman ajo, käydään jokainen tutkittava sana läpi
 
-    //tallennetaan wordListiin sanat, mitkÃ¤ lÃ¶ytyy gridistÃ¤
+    //tallennetaan wordListiin sanat, mitkä löytyy gridistä
     QVector<std::pair<QString, QVector<std::pair<int,int>>>> wordList;
     qDebug() << "start searching for words in grid";
-
     for(auto word : finalWords) {
-            bool notDuplicate = true;
-            QVector<QString> duplicateVector;
-            for(int i = 0; i < wordList.size(); i++) {
-                    duplicateVector.push_back(wordList[i].first);
+        //startsiin tallennetaan kaikki koordinaatit, mistä tuktkittavan
+        //ensimmäinen kirjain löytyy
+        std::set<std::pair<int,int>> starts;
+        starts = charMap.at(word[0]);
+        //wordFound tells us in the end if 'word' can be found from grid
+        bool wordFound = false;
+        //tutkitaan DFS:lla (inner) kaikista starteista sanaa
+        for(auto start : starts) {
+            //path sisältää "reitin" mitä pitkin sana on löytynyt
+            //TODO: palauta jotenkin reitti (UI hommiin)
+            QVector<std::pair<int,int>> path;
+            path.push_back(start);
+            //kutsutaan inneria, counter = 0, path = aloituspiste, start = aloituspiste
+            //wordFound = false, word = word ja charMap = aiemmin luotu charMap
+            //koska funktioita ei voi nestata mainin sisään, pitää esim
+            //charMap viedä tätä kautta parametrina innerille
+            QVector<std::pair<int,int>> finalPath;
+            finalPath = inner(0, path, start, wordFound, word, charMap);
+            //if word was found from grid, add it to 'wordList'
+            if(wordFound) {
+                wordList.push_back((std::make_pair(word, finalPath)));
             }
-            if(duplicateVector.contains(word)) {
-                    notDuplicate = false;
-            }
-
-//    for(auto word : finalWords) {
-//        bool notDuplicate = true;
-//        for(int i = 0; i < wordList.size(); i++) {
-//                if (word == wordList[i].first) {
-//                        notDuplicate = false;
-//                }
-//        }
-        if(notDuplicate) {
-                //startsiin tallennetaan kaikki koordinaatit, mistÃ¤ tuktkittavan
-                //ensimmÃ¤inen kirjain lÃ¶ytyy
-                std::set<std::pair<int,int>> starts;
-                starts = charMap.at(word[0]);
-                //wordFound tells us in the end if 'word' can be found from grid
-                bool wordFound = false;
-                //tutkitaan DFS:lla (inner) kaikista starteista sanaa
-                for(auto start : starts) {
-                    //path sisÃ¤ltÃ¤Ã¤ "reitin" mitÃ¤ pitkin sana on lÃ¶ytynyt
-                    //TODO: palauta jotenkin reitti (UI hommiin)
-                    QVector<std::pair<int,int>> path;
-                    path.push_back(start);
-                    //kutsutaan inneria, counter = 0, path = aloituspiste, start = aloituspiste
-                    //wordFound = false, word = word ja charMap = aiemmin luotu charMap
-                    //koska funktioita ei voi nestata mainin sisÃ¤Ã¤n, pitÃ¤Ã¤ esim
-                    //charMap viedÃ¤ tÃ¤tÃ¤ kautta parametrina innerille
-                    QVector<std::pair<int,int>> finalPath;
-                    finalPath = inner(0, path, start, wordFound, word, charMap);
-                    //if word was found from grid, add it to 'wordList'
-                    if(wordFound) {
-                        wordList.push_back((std::make_pair(word, finalPath)));
-                    }
-                    if(wordFound) {
-                        qDebug() << "moi";
-                                            bool notDuplicate2 = true;
-                                                    QVector<QString> duplicateVector2;
-                                                    for(int i = 0; i < wordList.size(); i++) {
-                                                            duplicateVector2.push_back(wordList[i].first);
-                                                    }
-                                                    if(duplicateVector2.contains(word)) {
-                                                            notDuplicate2 = false;
-                                                    }
-                                                    if(notDuplicate2) {
-                                                    wordList.push_back((std::make_pair(word, finalPath)));
-                                            }
-                                        }
-                }
         }
     }
     qDebug() << "finished searching for words in grid";
 
-    //loppujÃ¤rjestÃ¤miset yms
+    //loppujärjestämiset yms
 
     QVector<QString> tempWordList;
-    //joudutaan tekemÃ¤Ã¤n uusi sanalista sorttausta ja duplikaattien poistoa
-    //varten, jonka jÃ¤lkeen haetaan pathit takaisin kiinni
+    //joudutaan tekemään uusi sanalista sorttausta ja duplikaattien poistoa
+    //varten, jonka jälkeen haetaan pathit takaisin kiinni
 
     for(int i = 0; i < wordList.size(); i++) {
         tempWordList.push_back(wordList[i].first);
@@ -201,11 +168,11 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
     tempWordList = tempset.toList().toVector();
     qSort(tempWordList);
     //tempWordList.erase( unique( tempWordList.begin(), tempWordList.end() ), tempWordList.end() );
-    //sort(tempWordList.begin(),tempWordList.end(), compare); TODO: compare ei toimi, sanat ei jÃ¤rkÃ¤ssÃ¤
+    //sort(tempWordList.begin(),tempWordList.end(), compare); TODO: compare ei toimi, sanat ei järkässä
     std::reverse(tempWordList.begin(),tempWordList.end());
     qDebug() << "... done.";
 
-    //lisÃ¤tÃ¤Ã¤n pathit takaisin
+    //lisätään pathit takaisin
     qDebug() << "start adding paths back to words";
     QVector<std::pair<QString, QVector<std::pair<int,int>>>> finalWordList;
     for(int i = 0; i < tempWordList.size(); i++) {
@@ -218,7 +185,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
     }
     qDebug() << "paths added to words";
 
-    //luodaan Word oliot ja lisÃ¤tÃ¤Ã¤n ne lopulliseen QVectoriin
+    //luodaan Word oliot ja lisätään ne lopulliseen QVectoriin
     qDebug() << "start creating Word objects";
     QVector<Word*> kaikki;
     for(int i = 0; i < finalWordList.size(); i++) {
@@ -260,8 +227,8 @@ QVector<std::pair<int,int>> Solver::adjacent(int x, int y, QChar c,
         adja.push_back(std::make_pair(x+1,y+1));
         QVector<std::pair<int,int>> filtered;
 
-        //kÃ¤ydÃ¤Ã¤n lÃ¤pi adja vectori ja lisÃ¤tÃ¤Ã¤n filterediin vain ne, mitkÃ¤ ovat ruudukon sisÃ¤llÃ¤, eivÃ¤tkÃ¤ ole pathissa
-        //ja tÃ¤ytyy olla haluttu kirjain
+        //käydään läpi adja vectori ja lisätään filterediin vain ne, mitkä ovat ruudukon sisällä, eivätkä ole pathissa
+        //ja täytyy olla haluttu kirjain
         for(auto it = adja.begin(); it != adja.end(); ++it) {
             if(it->first > -1 && it->first < size && it->second > -1 && it->second < size &&
                !(it->first == prev.first && it->second == prev.second)) {
@@ -293,14 +260,14 @@ QVector<std::pair<int,int>> Solver::inner(int counter,
                                                std::pair<int,int> previous,
                                                bool& wordFound, QString word,
                                                std::map<QChar, std::set<std::pair<int,int>>> cMap) {
-    //jos counter tarpeeksi iso, ollaan lÃ¶ydetty sana
+    //jos counter tarpeeksi iso, ollaan löydetty sana
     int length = word.length();
     if(counter == length -1) {
         wordFound = true;
         return path;
     }
     else{
-        //haetaan nykyisen ruudun kaikki viereiset ruudut mihin voidaan siirtyÃ¤ ja kutsutaan inneriÃ¤ kaikille
+        //haetaan nykyisen ruudun kaikki viereiset ruudut mihin voidaan siirtyä ja kutsutaan inneriä kaikille
         std::pair<int,int> current;
         current = path.back();
         int c = counter + 1;
@@ -311,7 +278,7 @@ QVector<std::pair<int,int>> Solver::inner(int counter,
             QVector<std::pair<int,int>> newPath;
             newPath = path;
             newPath.push_back(branch);
-            return inner(c, newPath, current, wordFound, word, cMap);
+            inner(c, newPath, current, wordFound, word, cMap);
         }
     }
     return path;

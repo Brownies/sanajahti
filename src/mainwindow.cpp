@@ -5,6 +5,7 @@
 #include <QDropEvent>
 #include <QMimeData>
 #include <QTextStream>
+#include <QTimer>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -42,6 +43,10 @@ MainWindow::MainWindow(QWidget *parent) :
     });
     //Connect TreeWidget item selection to draw the corresponding word on the grid
     connect(ui->treeWidgetWords, &QTreeWidget::itemSelectionChanged, [&]() {
+        if(timerOn) {
+            killTimer(timerID);
+            timerOn = false;
+        }
         QTreeWidgetItem* current = ui->treeWidgetWords->selectedItems().first();
         if(current->childCount() == 0) { //Selection == Word, draw it on grid
             Word* selected = (Word*) ui->treeWidgetWords->selectedItems().first();
@@ -188,13 +193,33 @@ void MainWindow::nextCell() {
 }
 
 void MainWindow::drawWord(Word* selected) {
+    ui->tableWidgetGrid->selectionModel()->clear();
     QVector<QPair<int, int> > positions = selected->getPosition();
     qDebug() << "Drawing word in grid at: " << positions;
-    for(QPair<int, int> pair : positions) {
-        ui->tableWidgetGrid->selectionModel()->select(
-                    ui->tableWidgetGrid->model()->index(pair.first, pair.second),
-                    QItemSelectionModel::Select);
+    currentIterator = positions.begin();
+    currentWord = positions;
+    timerID = startTimer(500);
+    timerOn = true;
+}
+
+void MainWindow::drawNext() {
+    ui->tableWidgetGrid->selectionModel()->select(
+                ui->tableWidgetGrid->model()->index(currentIterator->first, currentIterator->second),
+                QItemSelectionModel::Select);
+    if(currentIterator != currentWord.end()) {
+        currentIterator++;
+    } else {
+        if(timerOn) {
+            killTimer(timerID);
+            timerOn = false;
+        }
     }
+}
+
+void MainWindow::timerEvent(QTimerEvent *event)
+{
+    qDebug() << "Update " << event << ": " << currentIterator->first << ", " << currentIterator->second;
+    drawNext();
 }
 
 bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
