@@ -131,11 +131,12 @@ void MainWindow::update(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>> &
     gridWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     //Display the data
     for(auto x = 0; x < width; x++) {
+        QDebug debug = qDebug();
         for(auto y = 0; y < height; y++) {
             QChar current = QChar(grid.at(x).at(y));
             QTableWidgetItem* currentItem = gridWidget->item(x, y);
             currentItem->setText(QString(current));
-            qDebug() << current << ":" << currentItem->text();
+            debug << current << ":" << currentItem->text() << " | ";
         }
     }
     gridWidget->viewport()->update();
