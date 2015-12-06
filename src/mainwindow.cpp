@@ -43,9 +43,9 @@ MainWindow::MainWindow(QWidget *parent) :
     });
     //Connect TreeWidget item selection to draw the corresponding word on the grid
     connect(ui->treeWidgetWords, &QTreeWidget::itemSelectionChanged, [&]() {
-        if(timerOn) {
-            killTimer(timerID);
-            timerOn = false;
+        if(charTimerOn) {
+            killTimer(charTimerID);
+            charTimerOn = false;
         }
         QTreeWidgetItem* current = ui->treeWidgetWords->selectedItems().first();
         if(current->childCount() == 0) { //Selection == Word, draw it on grid
@@ -63,6 +63,17 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->tableWidgetGrid->selectionModel()->select(lst.first(),QItemSelectionModel::Deselect);
         }
     });
+    //Connect next/previous buttons
+    connect(ui->buttonPrevious, &QPushButton::clicked, [&](){
+       changeTreeSelection(1);
+    });
+    connect(ui->buttonNext, &QPushButton::clicked, [&](){
+       changeTreeSelection(-1);
+    });
+    //Connect play button
+    connect(ui->buttonPlay, &QPushButton::clicked, [&]() {
+        startPlay();
+    });
 }
 
 
@@ -72,7 +83,6 @@ MainWindow::~MainWindow()
 }
 
 //Drag&Drop
-
 void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 {
     //Allow drag&drop for files only
@@ -192,14 +202,49 @@ void MainWindow::nextCell() {
     ui->tableWidgetGrid->setFocus();
 }
 
+void MainWindow::startPlay() {
+    if(wordTimerOn) {
+        killTimer(wordTimerID);
+        wordTimerOn = false;
+        ui->buttonPlay->setText("Play");
+    } else {
+        changeTreeSelection(-1);
+        wordTimerID = startTimer(wordTimerDelay);
+        wordTimerOn = true;
+        ui->buttonPlay->setText("Pause");
+    }
+}
+
+bool MainWindow::changeTreeSelection(int direction) {
+    QTreeWidgetItem* selected = ui->treeWidgetWords->currentItem();
+    QTreeWidgetItem* startFrom = ui->treeWidgetWords->itemBelow(selected);
+    if(selected == NULL){
+        selected = ui->treeWidgetWords->topLevelItem(0);
+    } else if(startFrom == NULL && !wordTimerOn){
+        ui->treeWidgetWords->setCurrentItem(ui->treeWidgetWords->topLevelItem(0));
+        selected = ui->treeWidgetWords->currentItem();
+    }
+    QTreeWidgetItem* nextItem = selected;
+    if(direction > 0) {
+        nextItem = ui->treeWidgetWords->itemAbove(selected);
+    } else {
+        nextItem = ui->treeWidgetWords->itemBelow(selected);
+    }
+    if(nextItem != NULL) {
+        ui->treeWidgetWords->setCurrentItem(nextItem);
+        return true;
+    }
+    return false;
+}
+
 void MainWindow::drawWord(Word* selected) {
     ui->tableWidgetGrid->selectionModel()->clear();
     QVector<QPair<int, int> > positions = selected->getPosition();
     qDebug() << "Drawing word in grid at: " << positions;
     currentIterator = positions.begin();
     currentWord = positions;
-    timerID = startTimer(500);
-    timerOn = true;
+    charTimerID = startTimer(charTimerDelay);
+    charTimerOn = true;
 }
 
 void MainWindow::drawNext() {
@@ -209,42 +254,52 @@ void MainWindow::drawNext() {
     if(currentIterator != currentWord.end()) {
         currentIterator++;
     } else {
-        if(timerOn) {
-            killTimer(timerID);
-            timerOn = false;
+        if(charTimerOn) {
+            killTimer(charTimerID);
+            charTimerOn = false;
         }
     }
 }
 
 void MainWindow::timerEvent(QTimerEvent *event)
 {
-    qDebug() << "Update " << event << ": " << currentIterator->first << ", " << currentIterator->second;
-    drawNext();
+    int currentTimer = event->timerId();
+    if(charTimerOn && currentTimer == charTimerID) {
+        qDebug() << "Update " << event << ": " << currentIterator->first << ", " << currentIterator->second;
+        drawNext();
+    }
+    if(wordTimerOn && currentTimer == wordTimerID) {
+        qDebug() << "Update " << event << " wordTimer";
+        if(!changeTreeSelection(-1)) {
+            killTimer(wordTimerID);
+            wordTimerOn = false;
+            ui->buttonPlay->setText("Play");
+        }
+    }
 }
 
 bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
-    if(inputOn) {
-        if(event->type()==QEvent::KeyPress) {
-            QKeyEvent* key = static_cast<QKeyEvent*>(event);
-            QString input(key->text());
-            QString whitelist("ABCDEFGHIJKLMNOPQRSTUVWXYZÖÄÅ");//Allow ÖÄÅ
-            if(input != "" && whitelist.contains(input, Qt::CaseInsensitive)) {
-                ui->tableWidgetGrid->item(inputY, inputX)->setText(input);
-                nextCell();
+    if(event->type()==QEvent::KeyPress) {
+        QKeyEvent* key = static_cast<QKeyEvent*>(event);
+        QString input(key->text());
+        qDebug() << "Pressed " << input;
+        QString whitelist("ABCDEFGHIJKLMNOPQRSTUVWXYZÖÄÅ");//Allow ÖÄÅ
+        if(inputOn) {
+                if(input != "" && whitelist.contains(input, Qt::CaseInsensitive)) {
+                    ui->tableWidgetGrid->item(inputY, inputX)->setText(input);
+                    nextCell();
+                    return true;
+                }
+                if(key->key() == Qt::Key_Escape) {
+                    inputOn = false;
+                    inputY = 0;
+                    inputX = 0;
+                    ui->tableWidgetGrid->setCurrentCell(0, 0);
+                    return true;
+                }
                 return true;
             }
-            if(key->key() == Qt::Key_Escape) {
-                inputOn = false;
-                inputY = 0;
-                inputX = 0;
-                ui->tableWidgetGrid->setCurrentCell(0, 0);
-                return true;
-            }
-            return true;
-        }
-    }
-    if(ui->tableWidgetGrid->selectedItems().length() > 0) {
-        if(event->type()==QEvent::KeyPress) {
+        if(ui->tableWidgetGrid->selectedItems().length() > 0) {
             QKeyEvent* key = static_cast<QKeyEvent*>(event);
             QString input(key->text());
             QString whitelist("ABCDEFGHIJKLMNOPQRSTUVWXYZÖÄÅ");//Allow ÖÄÅ

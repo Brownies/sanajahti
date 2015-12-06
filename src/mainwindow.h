@@ -20,7 +20,9 @@ public:
     void init(QVector<QVector<QChar> > &grid);
     void update(QVector<QVector<QChar>>& grid, QVector<QVector<Word *> > &words);
     void inputToGrid();
+    void startPlay();
     void nextCell();
+    bool changeTreeSelection(int direction);
     void drawWord(Word* selected);
     void drawNext();
 protected:
@@ -30,8 +32,12 @@ protected:
 signals:
     void fileDropped(QString filePath);
 private:
-    int timerID;
-    bool timerOn = false;
+    int charTimerID;
+    bool charTimerOn = false;
+    int charTimerDelay = 50; //milliseconds
+    int wordTimerID;
+    bool wordTimerOn = false;
+    int wordTimerDelay = 1000; //milliseconds
 
 protected:
     Ui::MainWindow *ui;
