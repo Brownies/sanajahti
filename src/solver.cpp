@@ -9,16 +9,7 @@
 
 const int size = 4;
 
-//function for comparing elements of word list
-bool comp(const std::pair<QString, QVector<std::pair<int,int>>>& word1,
-                  const std::pair<QString, QVector<std::pair<int,int>>>& word2) {
-    if(word1.first.length() == word2.first.length()) {
-        return word1.first < word2.first;
-    }
-    else {
-        return word1.first.length() > word2.first.length();
-    }
-}
+
 
 Solver::Solver(QObject *parent) : QObject(parent)
 {
@@ -148,7 +139,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
     }
     qDebug() << "finished searching for words in grid";
     qDebug() << "sorting word list by descending word length and ascending lexicographic order";
-    std::sort(wordList.begin(), wordList.end(), comp);
+    std::sort(wordList.begin(), wordList.end(), compare);
 
 
     //create the Word objects
@@ -236,4 +227,15 @@ QVector<std::pair<int,int>> Solver::inner(int counter,
         }
     }
     return path;
+}
+
+//function for comparing elements of word list
+bool Solver::compare(const std::pair<QString, QVector<std::pair<int,int>>>& word1,
+                  const std::pair<QString, QVector<std::pair<int,int>>>& word2) {
+    if(word1.first.length() == word2.first.length()) {
+        return word1.first < word2.first;
+    }
+    else {
+        return word1.first.length() > word2.first.length();
+    }
 }
