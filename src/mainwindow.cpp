@@ -117,6 +117,7 @@ void MainWindow::init(QVector<QVector<QChar>>& grid)
         }
     }
     gridWidget->viewport()->update();
+    ui->treeWidgetWords->setSortingEnabled(false);
 }
 
 void MainWindow::update(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>> &words) {
@@ -144,6 +145,11 @@ void MainWindow::update(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>> &
     QTreeWidget* wordWidget = ui->treeWidgetWords;
     wordWidget->clear();
     //Create the top level items for each vector
+    for (auto i : words) {
+        for (auto e : i) {
+            qDebug() << e->getWordText();
+        }
+    }
     for(auto i = 0; i < words.length(); ++i)
     {
         //Create a topLevelItem "x letters"

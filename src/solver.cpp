@@ -18,6 +18,16 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+bool comp(const std::pair<QString, QVector<std::pair<int,int>>>& word1,
+                  const std::pair<QString, QVector<std::pair<int,int>>>& word2) {
+    if(word1.first.length() == word2.first.length()) {
+        return word1.first < word2.first;
+    }
+    else {
+        return word1.first.length() > word2.first.length();
+    }
+}
+
 Solver::Solver(QObject *parent) : QObject(parent)
 {
     qDebug() << "Init Solver";
@@ -159,6 +169,12 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
     }
     qDebug() << "finished searching for words in grid";
 
+    qDebug() << "sorting word list by word length and lexicographic order";
+    std::sort(wordList.begin(), wordList.end(), comp);
+
+
+
+/*
     //loppujÃ¤rjestÃ¤miset yms
 
     QVector<QString> tempWordList;
@@ -223,28 +239,42 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
         biggest = nextBiggest;
         if (biggest == 0) hasNext = false;
     }
-
+*/
     //luodaan Word oliot ja lisÃ¤tÃ¤Ã¤n ne lopulliseen QVectoriin
     qDebug() << "start creating Word objects";
-    QVector<Word*> kaikki;
-    for(int i = 0; i < finalWordList.size(); i++) {
+    QVector<Word*> temp;
+    for (auto elem : wordList) {
         QVector<QPair<int, int>> qVec;
-        auto p = finalWordList[i].second;
+        auto p = elem.second;
         for(int j = 0; j < p.size(); j++) {
             qVec.push_back(qMakePair(p[j].first,p[j].second));
         }
-        QString tmp = finalWordList[i].first;
+        Word* w = new Word(elem.first, qVec);
+        temp.push_back(w);
+    }
+
+    words.clear();
+    words.push_back(temp);
+    /*QVector<Word*> kaikki;
+    for(int i = 0; i < wordList.size(); i++) {
+        QVector<QPair<int, int>> qVec;
+        auto p = wordList[i].second;
+        for(int j = 0; j < p.size(); j++) {
+            qVec.push_back(qMakePair(p[j].first,p[j].second));
+        }
+        QString tmp = wordList[i].first;
         Word* w = new Word(tmp, qVec);
         kaikki.append(w);
     }
     qDebug() << "Word objects created";
     //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    qDebug() << "wordsBySizeSize: " << wordsBySize.size();
+    //qDebug() << "wordsBySizeSize: " << wordsBySize.size();
     //Remove the old words
     words.clear();
 
     //kaikki = solverin hakemat sanat
     words.append(kaikki);
+    */
     qDebug() << "returning from solver";
     return true;
 }
@@ -322,3 +352,5 @@ QVector<std::pair<int,int>> Solver::inner(int counter,
     }
     return path;
 }
+
+
