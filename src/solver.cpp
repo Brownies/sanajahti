@@ -1,23 +1,16 @@
 #include <QDebug>
 #include <QPair>
 #include <QVector>
-#include "solver.h"
-#include <sstream>
-#include <iostream>
-#include <vector>
-#include <string>
 #include <algorithm>
-#include <fstream>
 #include <set>
 #include <map>
-#include <QStringList>
-#include <QList>
-#include <QDebug>
 #include <QDropEvent>
-#include <QMimeData>
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
 
+#include "solver.h"
+
+const int size = 4;
+
+//function for comparing elements of word list
 bool comp(const std::pair<QString, QVector<std::pair<int,int>>>& word1,
                   const std::pair<QString, QVector<std::pair<int,int>>>& word2) {
     if(word1.first.length() == word2.first.length()) {
@@ -32,8 +25,6 @@ Solver::Solver(QObject *parent) : QObject(parent)
 {
     qDebug() << "Init Solver";
 }
-//using namespace std;
-const int size = 4;
 
 //Solves the words in the given grid
 bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words)
@@ -59,7 +50,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
         return false;
     }
 
-    //tallennetaan grid vectoriin, rivit kerrallaan
+    //save grid to a vector row by row
     QVector<QString> grid2;
     std::set<QChar> chars;
     for(int i = 0; i < size; i++) {
@@ -79,8 +70,8 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
 
             QChar c = grid2[i][j];
 
-            //katsotaan ekaks lÃ¶ytyykÃ¶ setistÃ¤ jo kyseinen kirjain, jos ei lÃ¶ydy
-            //niin luodaan sille avain-arvo pari
+            //see if the set already contains the letter
+            //if not, create an entry for it
             if (charMap.find (c) == charMap.end()) {
                 std::pair<int,int> pari;
                 std::set<std::pair<int,int>> koordinaatit;
@@ -88,7 +79,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
                 koordinaatit.insert(pari);
                 charMap[c] = koordinaatit;
             }
-            //jos lÃ¶ytyy jo, niin pÃ¤ivitetÃ¤Ã¤n vanhan arvoa
+            //if found, update the value of the old entry
             else {
                 std::set<std::pair<int,int>> vanhat;
                 vanhat = charMap.find(c)->second;
@@ -104,55 +95,44 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
     }
     qDebug() << "charmap created";
 
-    //filterÃ¶idÃ¤Ã¤n ne sanat
+    //filter out unnecessary words from dict
     QVector<QString> finalWords;
-    //jokainen sana lÃ¤pi
     for(auto str : words2) {
         int i = 0;
-        int l = str.length();
         bool found = false;
-        //uppercaseen
         str = str.toUpper();
-        //kÃ¤ydÃ¤Ã¤n sanan kirjaimet lÃ¤pi ja jos lÃ¶ytyy kirjain mitÃ¤ ei ole gridissÃ¤
-        //siirrytÃ¤Ã¤n seuraavaan sanaan
-        while (i < l && !found) {
+        while (i < str.length() && !found) {
             if(chars.find(str[i]) == chars.end()) {
                 found = true;
             }
             i++;
         }
-        //jos kaikki kirjaimet ovat gridissÃ¤ ja pituus yli 2, lisÃ¤tÃ¤Ã¤n lopullisten
-        //tutkittavien sanojen listaan
-        if(!found && l > 2) {
+        if(!found && str.length() > 2) {
             finalWords.push_back(str);
         }
     }
-    qDebug() << "early word filtering done";
+    qDebug() << "dictionary filtering done";
 
-    //itse ohjelman ajo, kÃ¤ydÃ¤Ã¤n jokainen tutkittava sana lÃ¤pi
 
-    //tallennetaan wordListiin sanat, mitkÃ¤ lÃ¶ytyy gridistÃ¤
+    //the actual solving. words found in the grid are saved to wordList.
     QVector<std::pair<QString, QVector<std::pair<int,int>>>> wordList;
     qDebug() << "start searching for words in grid";
     for(auto word : finalWords) {
-        //startsiin tallennetaan kaikki koordinaatit, mistÃ¤ tuktkittavan
-        //ensimmÃ¤inen kirjain lÃ¶ytyy
+        //starts contains all coordinates that contain the first letter of the current word
         std::set<std::pair<int,int>> starts;
         starts = charMap.at(word[0]);
+
         //wordFound tells us in the end if 'word' can be found from grid
         bool wordFound = false;
-        //tutkitaan DFS:lla (inner) kaikista starteista sanaa
+
+        //for each starting location: search the grid with DFS
         for(auto start : starts) {
-            //path sisÃ¤ltÃ¤Ã¤ "reitin" mitÃ¤ pitkin sana on lÃ¶ytynyt
-            //TODO: palauta jotenkin reitti (UI hommiin)
             QVector<std::pair<int,int>> path;
             path.push_back(start);
-            //kutsutaan inneria, counter = 0, path = aloituspiste, start = aloituspiste
-            //wordFound = false, word = word ja charMap = aiemmin luotu charMap
-            //koska funktioita ei voi nestata mainin sisÃ¤Ã¤n, pitÃ¤Ã¤ esim
-            //charMap viedÃ¤ tÃ¤tÃ¤ kautta parametrina innerille
+
             QVector<std::pair<int,int>> finalPath;
             finalPath = inner(0, path, start, wordFound, word, charMap);
+
             //if word was found from grid, add it to 'wordList'
             if(wordFound) {
                 bool notDuplicate = true;
@@ -168,113 +148,25 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
         }
     }
     qDebug() << "finished searching for words in grid";
-
-    qDebug() << "sorting word list by word length and lexicographic order";
+    qDebug() << "sorting word list by descending word length and ascending lexicographic order";
     std::sort(wordList.begin(), wordList.end(), comp);
 
 
-
-/*
-    //loppujÃ¤rjestÃ¤miset yms
-
-    QVector<QString> tempWordList;
-    //joudutaan tekemÃ¤Ã¤n uusi sanalista sorttausta ja duplikaattien poistoa
-    //varten, jonka jÃ¤lkeen haetaan pathit takaisin kiinni
-
-    for(int i = 0; i < wordList.size(); i++) {
-        tempWordList.push_back(wordList[i].first);
-    }
-
-    //sortataan sanat ja poistetaan duplikaatit
-    //a dirty hack to remove duplicates
-    qDebug() << "remove duplicates, sort and reverse word list...";
-    auto tempset = tempWordList.toList().toSet();
-    tempWordList = tempset.toList().toVector();
-    qSort(tempWordList);
-    //tempWordList.erase( unique( tempWordList.begin(), tempWordList.end() ), tempWordList.end() );
-    //sort(tempWordList.begin(),tempWordList.end(), compare); TODO: compare ei toimi, sanat ei jÃ¤rkÃ¤ssÃ¤
-    std::reverse(tempWordList.begin(),tempWordList.end());
-    qDebug() << "... done.";
-
-    //lisÃ¤tÃ¤Ã¤n pathit takaisin
-    qDebug() << "start adding paths back to words";
-    QVector<std::pair<QString, QVector<std::pair<int,int>>>> finalWordList;
-    for(int i = 0; i < tempWordList.size(); i++) {
-        QString s = tempWordList[i];
-        for(int j = 0; j < wordList.size(); j++) {
-            if(wordList[j].first == s) {
-                finalWordList.push_back(make_pair(s, wordList[j].second));
-            }
-        }
-    }
-    qDebug() << "paths added to words";
-
-    QVector<QVector<std::pair<QString, QVector<std::pair<int,int>>>>> wordsBySize;
-    bool hasNext = true;
-    //biggest wrodsize
-    int biggest = 0;
-    for(auto pair : finalWordList) { //std::pair<QString, QVector<std::pair<int,int>>>
-        QString w = pair.first;
-        if (w.length() > biggest) {
-            biggest = w.length();
-        }
-    }
-    while(hasNext) {
-        QVector<std::pair<QString, QVector<std::pair<int,int>>>> wordsXsize;
-        for(auto pair : finalWordList) {
-            QString w = pair.first;
-            if(w.length() > biggest) {
-                wordsXsize.push_back(pair);
-            }
-        }
-        wordsBySize.push_back(wordsXsize);
-
-        int nextBiggest = 0;
-        for(auto pair : finalWordList) {
-            QString w = pair.first;
-            if(w.length() > nextBiggest && w.length() < biggest) {
-                nextBiggest = w.length();
-            }
-        }
-        biggest = nextBiggest;
-        if (biggest == 0) hasNext = false;
-    }
-*/
-    //luodaan Word oliot ja lisÃ¤tÃ¤Ã¤n ne lopulliseen QVectoriin
+    //create the Word objects
     qDebug() << "start creating Word objects";
     QVector<Word*> temp;
     for (auto elem : wordList) {
-        QVector<QPair<int, int>> qVec;
+        QVector<QPair<int, int>> v;
         auto p = elem.second;
         for(int j = 0; j < p.size(); j++) {
-            qVec.push_back(qMakePair(p[j].first,p[j].second));
+            v.push_back(qMakePair(p[j].first,p[j].second));
         }
-        Word* w = new Word(elem.first, qVec);
+        Word* w = new Word(elem.first, v);
         temp.push_back(w);
     }
 
     words.clear();
     words.push_back(temp);
-    /*QVector<Word*> kaikki;
-    for(int i = 0; i < wordList.size(); i++) {
-        QVector<QPair<int, int>> qVec;
-        auto p = wordList[i].second;
-        for(int j = 0; j < p.size(); j++) {
-            qVec.push_back(qMakePair(p[j].first,p[j].second));
-        }
-        QString tmp = wordList[i].first;
-        Word* w = new Word(tmp, qVec);
-        kaikki.append(w);
-    }
-    qDebug() << "Word objects created";
-    //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    //qDebug() << "wordsBySizeSize: " << wordsBySize.size();
-    //Remove the old words
-    words.clear();
-
-    //kaikki = solverin hakemat sanat
-    words.append(kaikki);
-    */
     qDebug() << "returning from solver";
     return true;
 }
