@@ -118,7 +118,9 @@ bool ImageReader::initData(QString filePath, QVector<QVector<QChar>>& grid)
 
         api->SetImage(image);
         outText = api->GetUTF8Text();
-        result += outText.simplified().replace(" ", "");
+        QString readChar = outText.simplified().replace(" ", "");
+        if (readChar == "") readChar = "I";
+        result += readChar;
         //qDebug() << result;
     }
 
