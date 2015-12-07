@@ -1,11 +1,10 @@
 #include <QDebug>
 #include <QPair>
 #include <QVector>
+#include <QFile>
 #include <algorithm>
 #include <set>
 #include <map>
-#include <QDropEvent>
-
 #include "solver.h"
 
 const int size = 4;
@@ -176,20 +175,15 @@ QVector<std::pair<int,int>> Solver::adjacent(int x, int y, QChar c,
                                                  QVector<std::pair<int,int>> path,
                                                  std::map<QChar, std::set<std::pair<int,int>>> cMap)
     {
-        //tungetaan adja vectoriin kaikki viereiset ruudut
         QVector<std::pair<int,int>> adja;
-        adja.push_back(std::make_pair(x-1,y-1));
-        adja.push_back(std::make_pair(x-1,y));
-        adja.push_back(std::make_pair(x-1,y+1));
-        adja.push_back(std::make_pair(x,y-1));
-        adja.push_back(std::make_pair(x,y+1));
-        adja.push_back(std::make_pair(x+1,y-1));
-        adja.push_back(std::make_pair(x+1,y));
-        adja.push_back(std::make_pair(x+1,y+1));
-        QVector<std::pair<int,int>> filtered;
+        for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                adja.push_back(std::make_pair(x + i, y + j));
+            }
+        }
 
-        //kÃ¤ydÃ¤Ã¤n lÃ¤pi adja vectori ja lisÃ¤tÃ¤Ã¤n filterediin vain ne, mitkÃ¤ ovat ruudukon sisÃ¤llÃ¤, eivÃ¤tkÃ¤ ole pathissa
-        //ja tÃ¤ytyy olla haluttu kirjain
+        QVector<std::pair<int,int>> filtered;
+        //accept only those coordinates that are inside the grid, contain the desired letter and have not been visited yet
         for(auto it = adja.begin(); it != adja.end(); ++it) {
             if(it->first > -1 && it->first < size && it->second > -1 && it->second < size &&
                !(it->first == prev.first && it->second == prev.second)) {
@@ -221,14 +215,13 @@ QVector<std::pair<int,int>> Solver::inner(int counter,
                                                std::pair<int,int> previous,
                                                bool& wordFound, QString word,
                                                std::map<QChar, std::set<std::pair<int,int>>> cMap) {
-    //jos counter tarpeeksi iso, ollaan lÃ¶ydetty sana
-    int length = word.length();
-    if(counter == length -1) {
+
+    if(counter == word.length() -1) {
         wordFound = true;
         return path;
     }
     else{
-        //haetaan nykyisen ruudun kaikki viereiset ruudut mihin voidaan siirtyÃ¤ ja kutsutaan inneriÃ¤ kaikille
+        //get adjacent tiles and recurse
         std::pair<int,int> current;
         current = path.back();
         int c = counter + 1;
@@ -244,5 +237,3 @@ QVector<std::pair<int,int>> Solver::inner(int counter,
     }
     return path;
 }
-
-
