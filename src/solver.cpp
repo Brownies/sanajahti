@@ -144,7 +144,10 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
 
     //create the Word objects
     qDebug() << "start creating Word objects";
+    QVector<QVector<Word*> > result;
     QVector<Word*> temp;
+    int lastLength = wordList.first().first.length();
+    int currentIndex = 0;
     for (auto elem : wordList) {
         QVector<QPair<int, int>> v;
         auto p = elem.second;
@@ -153,10 +156,18 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
         }
         Word* w = new Word(elem.first, v);
         temp.push_back(w);
+        if(elem.first.length() != lastLength) {
+            qDebug() << "Adding words of length: " << lastLength << " to result(" << currentIndex << ")";
+            lastLength = elem.first.length();
+            result.insert(currentIndex, temp);
+            temp.clear();
+            currentIndex += 1;
+        }
     }
 
     words.clear();
-    words.push_back(temp);
+    words = result;
+    qDebug() << words;
     qDebug() << "returning from solver";
     return true;
 }
