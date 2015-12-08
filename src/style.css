@@ -39,3 +39,8 @@ QTreeWidget::branch:selected {
     background-color: #003366;
     color: white;
 }
+
+QTableWidgetItem:checked {
+    background-color: green;
+    color: white;
+}

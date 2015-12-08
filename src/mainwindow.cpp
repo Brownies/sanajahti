@@ -122,6 +122,8 @@ void MainWindow::init(QVector<QVector<QChar>>& grid)
         for(auto y = 0; y < height; y++) {
             QChar current = grid.at(x).at(y);
             QTableWidgetItem* newItem = new QTableWidgetItem(current);
+            //Set checkable
+            newItem->setFlags(Qt::ItemIsUserCheckable);
             newItem->setTextAlignment(Qt::AlignCenter);
             gridWidget->setItem(x, y, newItem);
         }
@@ -220,6 +222,13 @@ void MainWindow::startPlay() {
 bool MainWindow::changeTreeSelection(int direction) {
     QTreeWidgetItem* selected = ui->treeWidgetWords->currentItem();
     QTreeWidgetItem* startFrom = ui->treeWidgetWords->itemBelow(selected);
+    if(startFrom->childCount() > 0) {
+        if(direction > 0) {
+            selected = ui->treeWidgetWords->itemAbove(selected);
+        } else {
+            selected = ui->treeWidgetWords->itemBelow(selected);
+        }
+    }
     if(selected == NULL){
         selected = ui->treeWidgetWords->topLevelItem(0);
     } else if(startFrom == NULL && !wordTimerOn){
@@ -240,7 +249,14 @@ bool MainWindow::changeTreeSelection(int direction) {
 }
 
 void MainWindow::drawWord(Word* selected) {
-    ui->tableWidgetGrid->selectionModel()->clear();
+    int columns = ui->tableWidgetGrid->columnCount();
+    int rows = ui->tableWidgetGrid->rowCount();
+    //Remove old selections
+    for(auto x = 0; x < columns; x++) {
+        for(auto y = 0; y < rows; y++) {
+            ui->tableWidgetGrid->item(x, y)->setBackgroundColor(QColor(Qt::white));
+        }
+    }
     QVector<QPair<int, int> > positions = selected->getPosition();
     qDebug() << "Drawing word in grid at: " << positions;
     currentIterator = positions.begin();
@@ -250,10 +266,13 @@ void MainWindow::drawWord(Word* selected) {
 }
 
 void MainWindow::drawNext() {
-    ui->tableWidgetGrid->selectionModel()->select(
-                ui->tableWidgetGrid->model()->index(currentIterator->first, currentIterator->second),
-                QItemSelectionModel::Select);
+    //ui->tableWidgetGrid->selectionModel()->select(
+    //            ui->tableWidgetGrid->model()->index(currentIterator->first, currentIterator->second),
+    //            QItemSelectionModel::Select);
+    QTableWidgetItem* current = ui->tableWidgetGrid->item(currentIterator->first, currentIterator->second);
     if(currentIterator != currentWord.end()) {
+        current->setBackgroundColor(QColor(0, 51, 102));
+        qDebug() << currentIterator << " | " << currentWord.end();
         currentIterator++;
     } else {
         if(charTimerOn) {
