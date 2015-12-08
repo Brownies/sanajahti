@@ -20,6 +20,8 @@ Solver::Solver(QObject *parent) : QObject(parent)
 bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words)
 {
     qDebug() << "Solver::solve called";
+    qDebug() << "grid: " << grid;
+    qDebug() << "words: " << words;
 
     QVector<QString> words2;
 
@@ -41,6 +43,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
     }
 
     //save grid to a vector row by row
+    qDebug() << "saving grid to vector from: " << grid;
     QVector<QString> grid2;
     std::set<QChar> chars;
     for(int i = 0; i < size; i++) {
@@ -51,7 +54,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
         }
         grid2.push_back(line);
     }
-    qDebug() << "grid saved to a vector";
+    qDebug() << "grid saved to a vector: " << grid2;
 
     //charmap contains char -> Set(coordinates) example: 'S' -> Set(00, 31)
     std::map<QChar, std::set<std::pair<int,int>>> charMap;
