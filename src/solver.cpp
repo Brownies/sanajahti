@@ -138,6 +138,10 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
         }
     }
     qDebug() << "finished searching for words in grid";
+    if (wordList.isEmpty()) {
+        qDebug() << "found no solutions, returning from solver";
+        return false;
+    }
     qDebug() << "sorting word list by descending word length and ascending lexicographic order";
     std::sort(wordList.begin(), wordList.end(), compare);
 
