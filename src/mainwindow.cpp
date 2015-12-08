@@ -127,6 +127,7 @@ void MainWindow::init(QVector<QVector<QChar>>& grid)
         }
     }
     gridWidget->viewport()->update();
+    ui->treeWidgetWords->setSortingEnabled(false);
 }
 
 void MainWindow::update(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>> &words) {
