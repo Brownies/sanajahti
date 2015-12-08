@@ -13,9 +13,10 @@ class MainProgram : public QObject
     Q_OBJECT
 public:
     explicit MainProgram();
-    void makeGrid(QString filePath);
     QVector<QVector<QChar>> grid;
     QVector<QVector<Word*> > words;
+    void makeGrid(QString filePath);
+    void solveGrid(QVector<QVector<QChar>> newGrid);
 
 signals:
     void gridUpdated();

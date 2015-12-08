@@ -134,7 +134,7 @@ bool ImageReader::initData(QString filePath, QVector<QVector<QChar>>& grid)
 
     for(int x = 0; x < 4; x++) {
         for(int y = 0; y < 4; y++) {
-            QChar current = (result.at(i).unicode());
+            QChar current(result.at(i).unicode());
             grid[x][y] = current;
             i++;
         }

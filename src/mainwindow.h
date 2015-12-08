@@ -25,19 +25,25 @@ public:
     bool changeTreeSelection(int direction);
     void drawWord(Word* selected);
     void drawNext();
+    void solveCurrent();
+    void initTableColors();
+
 protected:
     bool eventFilter(QObject* obj, QEvent* event);
     void timerEvent(QTimerEvent *event);
 
 signals:
     void fileDropped(QString filePath);
+    void requestSolve(QVector<QVector<QChar> > currentGrid);
+
 private:
+    QVector<QVector<QChar> > currentGrid;
     int charTimerID;
     bool charTimerOn = false;
-    int charTimerDelay = 50; //milliseconds
+    int charTimerDelay = 200; //milliseconds
     int wordTimerID;
     bool wordTimerOn = false;
-    int wordTimerDelay = 1000; //milliseconds
+    int wordTimerDelay = 2000; //milliseconds
 
 protected:
     Ui::MainWindow *ui;

@@ -29,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidgetGrid->installEventFilter(this);
     //Connect fileToGrid-pushButton
     connect(ui->buttonInput, &QAbstractButton::clicked, [&]() {
+        initTableColors();
         inputToGrid();
     });
     //Connect fileToGrid-button
@@ -112,6 +113,7 @@ void MainWindow::init(QVector<QVector<QChar>>& grid)
     QTableWidget* gridWidget = ui->tableWidgetGrid;
     int width = grid.length();
     int height = grid.first().length();
+    currentGrid = grid;
     //Set the table size
     gridWidget->setColumnCount(width);
     gridWidget->setRowCount(height);
@@ -122,8 +124,6 @@ void MainWindow::init(QVector<QVector<QChar>>& grid)
         for(auto y = 0; y < height; y++) {
             QChar current = grid.at(x).at(y);
             QTableWidgetItem* newItem = new QTableWidgetItem(current);
-            //Set checkable
-            newItem->setFlags(Qt::ItemIsUserCheckable);
             newItem->setTextAlignment(Qt::AlignCenter);
             gridWidget->setItem(x, y, newItem);
         }
@@ -132,7 +132,7 @@ void MainWindow::init(QVector<QVector<QChar>>& grid)
     ui->treeWidgetWords->setSortingEnabled(false);
 }
 
-void MainWindow::update(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>> &words) {
+void MainWindow::update(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words) {
     //Update table
     QTableWidget* gridWidget = ui->tableWidgetGrid;
     int width = grid.length();
@@ -154,13 +154,20 @@ void MainWindow::update(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>> &
     }
     gridWidget->viewport()->update();
     //Update word list
+    qDebug() << "Updating word list with " << words;
     QTreeWidget* wordWidget = ui->treeWidgetWords;
+    qDebug() << wordWidget;
+    ui->tableWidgetGrid->clearSelection();
+    qDebug() << wordWidget->topLevelItemCount();
+    wordWidget->selectionModel()->reset();
     wordWidget->clear();
+    qDebug() << wordWidget->topLevelItemCount();
     //Create the top level items for each vector
     for(auto i = 0; i < words.length(); ++i)
     {
         //Create a topLevelItem "x letters"
         QVector<Word*> currentWords = words[i];
+        qDebug() << "Current: " << currentWords;
         QTreeWidgetItem* current = new QTreeWidgetItem();
         QString currentText = QString::number(currentWords.first()->length()) + QString(" letters");
         qDebug() << "Adding words at: " << currentText;
@@ -197,6 +204,7 @@ void MainWindow::nextCell() {
             inputOn = false;
             inputX = 0;
             inputY = 0;
+            solveCurrent();
         } else {
             inputX = 0;
             inputY += 1;
@@ -222,7 +230,7 @@ void MainWindow::startPlay() {
 bool MainWindow::changeTreeSelection(int direction) {
     QTreeWidgetItem* selected = ui->treeWidgetWords->currentItem();
     QTreeWidgetItem* startFrom = ui->treeWidgetWords->itemBelow(selected);
-    if(startFrom->childCount() > 0) {
+    if(startFrom != NULL && startFrom->childCount() > 0) {
         if(direction > 0) {
             selected = ui->treeWidgetWords->itemAbove(selected);
         } else {
@@ -249,14 +257,8 @@ bool MainWindow::changeTreeSelection(int direction) {
 }
 
 void MainWindow::drawWord(Word* selected) {
-    int columns = ui->tableWidgetGrid->columnCount();
-    int rows = ui->tableWidgetGrid->rowCount();
-    //Remove old selections
-    for(auto x = 0; x < columns; x++) {
-        for(auto y = 0; y < rows; y++) {
-            ui->tableWidgetGrid->item(x, y)->setBackgroundColor(QColor(Qt::white));
-        }
-    }
+    initTableColors();
+    ui->tableWidgetGrid->clearSelection();
     QVector<QPair<int, int> > positions = selected->getPosition();
     qDebug() << "Drawing word in grid at: " << positions;
     currentIterator = positions.begin();
@@ -266,12 +268,10 @@ void MainWindow::drawWord(Word* selected) {
 }
 
 void MainWindow::drawNext() {
-    //ui->tableWidgetGrid->selectionModel()->select(
-    //            ui->tableWidgetGrid->model()->index(currentIterator->first, currentIterator->second),
-    //            QItemSelectionModel::Select);
     QTableWidgetItem* current = ui->tableWidgetGrid->item(currentIterator->first, currentIterator->second);
     if(currentIterator != currentWord.end()) {
         current->setBackgroundColor(QColor(0, 51, 102));
+        current->setTextColor(QColor(Qt::white));
         qDebug() << currentIterator << " | " << currentWord.end();
         currentIterator++;
     } else {
@@ -301,13 +301,15 @@ void MainWindow::timerEvent(QTimerEvent *event)
 
 bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
     if(event->type()==QEvent::KeyPress) {
-        QKeyEvent* key = static_cast<QKeyEvent*>(event);
+        QKeyEvent* key = (QKeyEvent*)(event);
         QString input(key->text());
-        qDebug() << "Pressed " << input;
         QString whitelist("ABCDEFGHIJKLMNOPQRSTUVWXYZÖÄÅ");//Allow ÖÄÅ
         if(inputOn) {
                 if(input != "" && whitelist.contains(input, Qt::CaseInsensitive)) {
-                    ui->tableWidgetGrid->item(inputY, inputX)->setText(input);
+                    ushort unic = input.at(0).unicode();
+                    QChar inChar(unic);
+                    qDebug() << "Pressed " << input << " to unicode: " << unic << " - saved " << inChar;
+                    ui->tableWidgetGrid->item(inputY, inputX)->setText(inChar);
                     nextCell();
                     return true;
                 }
@@ -316,6 +318,7 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
                     inputY = 0;
                     inputX = 0;
                     ui->tableWidgetGrid->setCurrentCell(0, 0);
+                    //solveCurrent();
                     return true;
                 }
                 return true;
@@ -335,4 +338,38 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
         }
     }
     return QObject::eventFilter(obj, event);
+}
+
+void MainWindow::solveCurrent() {
+    qDebug() << "Solving current grid";
+    int columns = ui->tableWidgetGrid->columnCount();
+    int rows = ui->tableWidgetGrid->rowCount();
+    //Update current grid
+    QVector<QChar> temp;
+    QVector<QVector<QChar> > result;
+    for(auto x = 0; x < columns; x++) {
+        for(auto y = 0; y < rows; y++) {
+            QString currentText = ui->tableWidgetGrid->item(x, y)->text();
+            QChar current = currentText.at(0).unicode();
+            qDebug() << "Inserting: " << current << " from " << currentText;
+            temp.insert(y, current);
+        }
+        result.insert(x, temp);
+        temp.clear();
+    }
+    qDebug() << "To solve: " << result;
+    currentGrid = result;
+    emit requestSolve(currentGrid);
+}
+
+void MainWindow::initTableColors() {
+    int columns = ui->tableWidgetGrid->columnCount();
+    int rows = ui->tableWidgetGrid->rowCount();
+    //Remove old selections
+    for(auto x = 0; x < columns; x++) {
+        for(auto y = 0; y < rows; y++) {
+            ui->tableWidgetGrid->item(x, y)->setBackgroundColor(QColor(Qt::white));
+            ui->tableWidgetGrid->item(x, y)->setTextColor(QColor(Qt::black));
+        }
+    }
 }

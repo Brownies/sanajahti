@@ -32,8 +32,8 @@ void MainProgram::makeGrid(QString filePath)
     qDebug() << "OCR finished";
     if(imageRead) {
         qDebug() << "OCR was successful";
-        solver->solve(grid, words);
-        qDebug() << "Solved: " << grid;
+        bool solved = solver->solve(grid, words);
+        qDebug() << "Solved: " << solved;
         emit gridUpdated();
     }
     //Or read from a text file
@@ -41,4 +41,12 @@ void MainProgram::makeGrid(QString filePath)
 
     //Then call Solver::solve
 
+}
+
+void MainProgram::solveGrid(QVector<QVector<QChar>> newGrid) {
+    grid = newGrid;
+    words.clear();
+    bool solved = solver->solve(grid, words);
+    qDebug() << "Solved: " << solved;
+    emit gridUpdated();
 }

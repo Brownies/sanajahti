@@ -19,6 +19,10 @@ int main(int argc, char *argv[])
     QObject::connect(&w, &MainWindow::fileDropped, [&](QString filePath){
         program.makeGrid(filePath);
     });
+    //Solve the new grid given in the UI
+    QObject::connect(&w, &MainWindow::requestSolve, [&](QVector<QVector<QChar>> newGrid) {
+        program.solveGrid(newGrid);
+    });
     //Update the grid in the UI if the data has changed
     QObject::connect(&program, &MainProgram::gridUpdated, [&]() {
         w.update(program.grid, program.words);
