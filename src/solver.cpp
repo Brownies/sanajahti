@@ -20,8 +20,6 @@ Solver::Solver(QObject *parent) : QObject(parent)
 bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words)
 {
     qDebug() << "Solver::solve called";
-    qDebug() << "grid: " << grid;
-    qDebug() << "words: " << words;
 
     QVector<QString> words2;
 
@@ -43,7 +41,6 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
     }
 
     //save grid to a vector row by row
-    qDebug() << "saving grid to vector from: " << grid;
     QVector<QString> grid2;
     std::set<QChar> chars;
     for(int i = 0; i < size; i++) {
@@ -54,7 +51,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
         }
         grid2.push_back(line);
     }
-    qDebug() << "grid saved to a vector: " << grid2;
+    qDebug() << "grid saved to a vector";
 
     //charmap contains char -> Set(coordinates) example: 'S' -> Set(00, 31)
     std::map<QChar, std::set<std::pair<int,int>>> charMap;
@@ -160,11 +157,11 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
         Word* w = new Word(elem.first, v);
         temp.push_back(w);
         if(elem.first.length() != lastLength) {
-            qDebug() << "Adding words of length: " << lastLength << " to result(" << currentIndex << ")";
+            qDebug() << "Adding words of length: " << lastLength << " to result";
             lastLength = elem.first.length();
             result.insert(currentIndex, temp);
             temp.clear();
-            currentIndex += 1;
+            currentIndex++;
         }
     }
 
@@ -237,7 +234,7 @@ QVector<std::pair<int,int>> Solver::inner(int counter,
             QVector<std::pair<int,int>> newPath;
             newPath = path;
             newPath.push_back(branch);
-            inner(c, newPath, current, wordFound, word, cMap);
+            return inner(c, newPath, current, wordFound, word, cMap);
         }
     }
     return path;
