@@ -211,12 +211,14 @@ void MainWindow::inputToGrid() {
     QTableWidget* table = ui->tableWidgetGrid;
     table->setCurrentCell(0, 0);
     ui->tableWidgetGrid->setFocus();
+    inputX = 0;
+    inputY = 0;
     inputOn = true;
     //table->itemAt(0, 0)->setText(QString(newChar));
 
 }
 
-void MainWindow::nextCell() {
+bool MainWindow::nextCell() {
     QTableWidget* table = ui->tableWidgetGrid;
     if(inputX < 3) {
         inputX += 1;
@@ -227,6 +229,10 @@ void MainWindow::nextCell() {
             inputX = 0;
             inputY = 0;
             solveCurrent();
+            ui->tableWidgetGrid->selectionModel()->reset();
+            changeTreeSelection(-1);
+            ui->buttonNext->setFocus();
+            return true;
         } else {
             inputX = 0;
             inputY += 1;
@@ -234,6 +240,7 @@ void MainWindow::nextCell() {
     }
     table->setCurrentCell(inputY, inputX);
     ui->tableWidgetGrid->setFocus();
+    return false;
 }
 
 void MainWindow::startPlay() {
@@ -324,7 +331,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
 bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
     if(event->type()==QEvent::KeyPress) {
         QKeyEvent* key = (QKeyEvent*)(event);
-        QString input(key->text());
+        QString input(key->text().toUpper());
         QString whitelist("ABCDEFGHIJKLMNOPQRSTUVWXYZÖÄÅ");//Allow ÖÄÅ
         if(inputOn) {
                 if(input != "" && whitelist.contains(input, Qt::CaseInsensitive)) {

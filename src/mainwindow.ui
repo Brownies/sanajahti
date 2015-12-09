@@ -151,7 +151,11 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit"/>
+               <widget class="QLineEdit" name="lineEdit">
+                <property name="placeholderText">
+                 <string/>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QLabel" name="label_3">

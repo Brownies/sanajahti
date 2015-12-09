@@ -153,6 +153,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
     int lastLength = wordList.first().first.length();
     int currentIndex = 0;
     for (auto elem : wordList) {
+        qDebug() << elem.first;
         QVector<QPair<int, int>> v;
         auto p = elem.second;
         for(int j = 0; j < p.size(); j++) {

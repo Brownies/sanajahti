@@ -21,7 +21,7 @@ public:
     void update(QVector<QVector<QChar>>& grid, QVector<QVector<Word *> > &words);
     void inputToGrid();
     void startPlay();
-    void nextCell();
+    bool nextCell();
     bool changeTreeSelection(int direction);
     void drawWord(Word* selected);
     void drawNext();
