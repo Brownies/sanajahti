@@ -27,6 +27,10 @@ int main(int argc, char *argv[])
     QObject::connect(&program, &MainProgram::gridUpdated, [&]() {
         w.update(program.grid, program.words);
     });
+    //Change language
+    QObject::connect(&w, &MainWindow::languageChanged, [&](QString language){
+        program.changeLanguage(language);
+    });
     w.update(program.grid, program.words);
     w.show();
     return a.exec();

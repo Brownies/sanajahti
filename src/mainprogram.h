@@ -17,6 +17,7 @@ public:
     QVector<QVector<Word*> > words;
     void makeGrid(QString filePath);
     void solveGrid(QVector<QVector<QChar>> newGrid);
+    void changeLanguage(QString language);
 
 signals:
     void gridUpdated();

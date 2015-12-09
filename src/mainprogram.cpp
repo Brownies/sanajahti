@@ -73,6 +73,11 @@ void MainProgram::solveGrid(QVector<QVector<QChar>> newGrid) {
     grid = newGrid;
     words.clear();
     bool solved = solver->solve(grid, words);
-    qDebug() << "Solved: " << solved;
+    qDebug() << "Solved: " << solved << " with " << solver->language;
     emit gridUpdated();
+}
+
+void MainProgram::changeLanguage(QString language) {
+    solver->language = language;
+    qDebug() << solver->language;
 }

@@ -87,6 +87,16 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->buttonSettings->setText("Settings");
         }
     });
+    connect(ui->comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), [=](int value) {
+        if(value == 1) {
+            qDebug() << "change to english";
+            emit languageChanged(QString("english"));
+        } else {
+            qDebug() << "change to finnish";
+            emit languageChanged(QString("finnish"));
+        }
+        solveCurrent();
+    });
 }
 
 

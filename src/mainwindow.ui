@@ -133,12 +133,12 @@
                <widget class="QComboBox" name="comboBox">
                 <item>
                  <property name="text">
-                  <string>English</string>
+                  <string>Finnish</string>
                  </property>
                 </item>
                 <item>
                  <property name="text">
-                  <string>Finnish</string>
+                  <string>English</string>
                  </property>
                 </item>
                </widget>

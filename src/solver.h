@@ -12,7 +12,7 @@ class Solver : public QObject
 {
 public:
     Solver(QObject *parent = 0);
-
+    QString language = "finnish";
     bool solve(QVector<QVector<QChar> > &grid, QVector<QVector<Word *> > &words);
     static bool compare(const std::pair<QString, QVector<std::pair<int,int>>>&, const std::pair<QString, QVector<std::pair<int,int>>>&);
     QVector<std::pair<int,int>> adjacent(int , int , QChar , std::pair<int,int>, QVector<std::pair<int,int>>, std::map<QChar, std::set<std::pair<int,int>>>);

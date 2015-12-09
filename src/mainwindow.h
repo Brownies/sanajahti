@@ -35,6 +35,7 @@ protected:
 signals:
     void fileDropped(QString filePath);
     void requestSolve(QVector<QVector<QChar> > currentGrid);
+    void languageChanged(QString language);
 
 private:
     QVector<QVector<QChar> > currentGrid;

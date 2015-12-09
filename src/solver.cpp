@@ -23,7 +23,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
 
     QVector<QString> words2;
 
-    QFile inputFile("../dictionaries/english.dic");
+    QFile inputFile("../dictionaries/" + language + ".dic");
     if (inputFile.open(QIODevice::ReadOnly))
     {
        QTextStream in(&inputFile);
