@@ -75,6 +75,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->buttonPlay, &QPushButton::clicked, [&]() {
         startPlay();
     });
+    //Connect settings button
+    connect(ui->buttonSettings, &QPushButton::clicked, [&]() {
+        QStackedWidget* stack = ui->stackedWidget;
+        int current = stack->currentIndex();
+        if(current == 0) {
+            stack->setCurrentIndex(1);
+            ui->buttonSettings->setText("Word list");
+        } else {
+            stack->setCurrentIndex(0);
+            ui->buttonSettings->setText("Settings");
+        }
+    });
 }
 
 
