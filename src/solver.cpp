@@ -97,7 +97,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
             }
             i++;
         }
-        if(!found && str.length() >= 2) {
+        if(!found && str.length() > 2) {
             finalWords.push_back(str);
         }
     }
