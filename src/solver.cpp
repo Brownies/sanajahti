@@ -23,7 +23,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
 
     QVector<QString> words2;
 
-    QFile inputFile("../dictionaries/finnish.dic");
+    QFile inputFile("../dictionaries/english.dic");
     if (inputFile.open(QIODevice::ReadOnly))
     {
        QTextStream in(&inputFile);
@@ -39,6 +39,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
         qDebug() << "Failed to open dictionary file";
         return false;
     }
+
     //save grid to a vector row by row
     QVector<QString> grid2;
     std::set<QChar> chars;
@@ -50,7 +51,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
         }
         grid2.push_back(line);
     }
-    qDebug() << "grid saved to a vector ";
+    qDebug() << "grid saved to a vector";
 
     //charmap contains char -> Set(coordinates) example: 'S' -> Set(00, 31)
     std::map<QChar, std::set<std::pair<int,int>>> charMap;
@@ -82,7 +83,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
 
         }
     }
-    qDebug() << "charmap created: " << charMap.size();
+    qDebug() << "charmap created";
 
     //filter out unnecessary words from dict
     QVector<QString> finalWords;
@@ -100,10 +101,8 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
             finalWords.push_back(str);
         }
     }
-    qDebug() << "dictionary filtering done: " << finalWords.length() << " words found";
-    if(finalWords.isEmpty()) {
-        return false;
-    }
+    qDebug() << "dictionary filtering done";
+
 
     //the actual solving. words found in the grid are saved to wordList.
     QVector<std::pair<QString, QVector<std::pair<int,int>>>> wordList;
@@ -138,7 +137,11 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
             }
         }
     }
-    qDebug() << "finished searching for words in grid: " << wordList.length() << " words found";
+    qDebug() << "finished searching for words in grid";
+    if (wordList.isEmpty()) {
+        qDebug() << "found no solutions, returning from solver";
+        return false;
+    }
     qDebug() << "sorting word list by descending word length and ascending lexicographic order";
     std::sort(wordList.begin(), wordList.end(), compare);
 
@@ -148,7 +151,6 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
     QVector<QVector<Word*> > result;
     QVector<Word*> temp;
     int lastLength = wordList.first().first.length();
-    qDebug() << lastLength;
     int currentIndex = 0;
     for (auto elem : wordList) {
         QVector<QPair<int, int>> v;
@@ -166,6 +168,8 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
             currentIndex++;
         }
     }
+
+    words.clear();
     words = result;
     qDebug() << words;
     qDebug() << "returning from solver";
