@@ -160,7 +160,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
             v.push_back(qMakePair(p[j].first,p[j].second));
         }
         Word* w = new Word(elem.first, v);
-        temp.push_back(w);
+        //temp.push_back(w);
         if(elem.first.length() != lastLength) {
             qDebug() << "Adding words of length: " << lastLength << " to result";
             lastLength = elem.first.length();
@@ -168,8 +168,9 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
             temp.clear();
             currentIndex++;
         }
+        temp.push_back(w);
     }
-
+    if(!temp.isEmpty()) {result.push_back(temp);}
     words.clear();
     words = result;
     qDebug() << words;
