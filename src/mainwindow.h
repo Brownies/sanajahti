@@ -48,6 +48,9 @@ private:
     bool wordTimerOn = false;
     int wordTimerDelay = 1500; //milliseconds
     bool flashWordOn = false;
+    QColor defaultBG = QColor(0, 51, 102);
+    QColor defaultText = QColor(Qt::white);
+    int lightFactor = 100;
 
 protected:
     Ui::MainWindow *ui;

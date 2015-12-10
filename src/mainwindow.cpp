@@ -292,6 +292,7 @@ void MainWindow::startPlay() {
 }
 
 bool MainWindow::changeTreeSelection(int direction) {
+    lightFactor = 100;
     QTreeWidgetItem* selected = ui->treeWidgetWords->currentItem();
     QTreeWidgetItem* startFrom = ui->treeWidgetWords->itemBelow(selected);
     if(direction > 0) startFrom = ui->treeWidgetWords->itemAbove(selected);
@@ -338,13 +339,16 @@ void MainWindow::drawWord(Word* selected) {
 void MainWindow::drawNext() {
     QTableWidgetItem* current = ui->tableWidgetGrid->item(currentIterator->first, currentIterator->second);
     if(currentIterator != currentWord.end()) {
-        current->setBackgroundColor(QColor(0, 51, 102));
-        current->setTextColor(QColor(Qt::white));
+        QColor currentColor = defaultBG.lighter(lightFactor);
+        //QColor currentText = defaultText.darker(lightFactor);
+        current->setBackgroundColor(currentColor);
+        current->setTextColor(defaultText);
         currentIterator++;
     } else {
         if(charTimerOn) {
             killTimer(charTimerID);
             charTimerOn = false;
+            lightFactor = 100;
         }
     }
 }
@@ -354,6 +358,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
     int currentTimer = event->timerId();
     if(charTimerOn && currentTimer == charTimerID) {
         drawNext();
+        lightFactor += 10;
     }
     if(wordTimerOn && currentTimer == wordTimerID) {
         if(!changeTreeSelection(-1)) {
