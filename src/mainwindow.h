@@ -28,6 +28,7 @@ public:
     void solveCurrent();
     void initTableColors();
     void notFound();
+    void flashWord(Word* word);
 
 protected:
     bool eventFilter(QObject* obj, QEvent* event);
@@ -42,10 +43,11 @@ private:
     QVector<QVector<QChar> > currentGrid;
     int charTimerID;
     bool charTimerOn = false;
-    int charTimerDelay = 200; //milliseconds
+    int charTimerDelay = 100; //milliseconds
     int wordTimerID;
     bool wordTimerOn = false;
-    int wordTimerDelay = 2000; //milliseconds
+    int wordTimerDelay = 1500; //milliseconds
+    bool flashWordOn = false;
 
 protected:
     Ui::MainWindow *ui;

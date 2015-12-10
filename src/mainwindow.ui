@@ -168,6 +168,22 @@
                <widget class="QLineEdit" name="lineEditCharDelay"/>
               </item>
               <item>
+               <widget class="QCheckBox" name="checkBoxBlacken">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="text">
+                 <string>Blacken grid</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+                <property name="tristate">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
                <spacer name="verticalSpacer">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>

@@ -84,6 +84,7 @@ MainWindow::MainWindow(QWidget *parent) :
         //Update placeholders
         ui->lineEditCharDelay->setPlaceholderText(QString::number(charTimerDelay));
         ui->lineEditWordDelay->setPlaceholderText(QString::number(wordTimerDelay));
+        ui->checkBoxBlacken->setChecked(flashWordOn);
     });
     //Connect language change
     connect(ui->comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), [=](int value) {
@@ -124,6 +125,10 @@ MainWindow::MainWindow(QWidget *parent) :
                startPlay();
            }
        }
+    });
+    //Connect blacken option
+    connect(ui->checkBoxBlacken, &QCheckBox::clicked, [=](bool checked){
+        flashWordOn = checked;
     });
 }
 
@@ -319,6 +324,7 @@ bool MainWindow::changeTreeSelection(int direction) {
 
 void MainWindow::drawWord(Word* selected) {
     initTableColors();
+    if(flashWordOn) flashWord(selected);
     ui->tableWidgetGrid->clearSelection();
     QString wordText = selected->getWordText();
     ui->labelWord->setText(selected->getWordText());
@@ -450,5 +456,25 @@ void MainWindow::initTableColors() {
             ui->tableWidgetGrid->item(x, y)->setBackgroundColor(QColor(Qt::white));
             ui->tableWidgetGrid->item(x, y)->setTextColor(QColor(Qt::black));
         }
+    }
+}
+
+void MainWindow::flashWord(Word* word) {
+    QVector<QPair<int, int> > letters = word->getPosition();
+    qDebug() << letters;
+    int width = 4;
+    int height = 4;
+    for(int x = 0; x < width; x++) {
+        for(int y = 0; y < height; y++) {
+            qDebug() << "Blacken: " << x << ", " << y;
+            ui->tableWidgetGrid->item(x, y)->setBackgroundColor(QColor(Qt::black));
+        }
+    }
+    for(auto coord : letters) {
+        int x = coord.first;
+        int y = coord.second;
+        qDebug() << "Whiten: " << x << ", " << y;
+        ui->tableWidgetGrid->item(x, y)->setBackgroundColor(QColor(Qt::white));
+
     }
 }
