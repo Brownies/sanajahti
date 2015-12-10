@@ -151,7 +151,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit">
+               <widget class="QLineEdit" name="lineEditWordDelay">
                 <property name="placeholderText">
                  <string/>
                 </property>
@@ -165,7 +165,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_2"/>
+               <widget class="QLineEdit" name="lineEditCharDelay"/>
               </item>
               <item>
                <spacer name="verticalSpacer">

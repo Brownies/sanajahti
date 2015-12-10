@@ -85,8 +85,14 @@ MainWindow::MainWindow(QWidget *parent) :
         } else {
             stack->setCurrentIndex(0);
             ui->buttonSettings->setText("Settings");
+            ui->lineEditCharDelay->clear();
+            ui->lineEditWordDelay->clear();
         }
+        //Update placeholders
+        ui->lineEditCharDelay->setPlaceholderText(QString::number(charTimerDelay));
+        ui->lineEditWordDelay->setPlaceholderText(QString::number(wordTimerDelay));
     });
+    //Connect language change
     connect(ui->comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), [=](int value) {
         if(value == 1) {
             qDebug() << "change to english";
@@ -96,6 +102,37 @@ MainWindow::MainWindow(QWidget *parent) :
             emit languageChanged(QString("finnish"));
         }
         solveCurrent();
+    });
+    //Connect char delay change
+    connect(ui->lineEditCharDelay, &QLineEdit::textChanged, [=](QString string) {
+       int value = string.toInt();
+       if(value == 0 && ui->lineEditCharDelay->text().length() > 0) {
+           ui->lineEditCharDelay->setStyleSheet("color:red");
+       } else {
+           ui->lineEditCharDelay->setStyleSheet("color:black");
+
+       }
+       if(value > 0) {
+           charTimerDelay = value;
+       }
+    });
+
+    //Connect word elay change
+    connect(ui->lineEditWordDelay, &QLineEdit::textChanged, [=](QString string) {
+       int value = string.toInt();
+       if(value == 0 && ui->lineEditWordDelay->text().length() > 0) {
+           ui->lineEditWordDelay->setStyleSheet("color:red");
+       } else {
+           ui->lineEditWordDelay->setStyleSheet("color:black");
+
+       }
+       if(value > 0) {
+           wordTimerDelay = value;
+           if(wordTimerOn) {//Reset the timer
+               startPlay();
+               startPlay();
+           }
+       }
     });
 }
 
