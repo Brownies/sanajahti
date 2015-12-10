@@ -5,6 +5,10 @@
     font-size: 20px;
 }
 
+#labelWord {
+    font-size: 23px;
+}
+
 QPushButton {
     background-color: #003366;
     color: white;

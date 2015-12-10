@@ -317,6 +317,7 @@ bool MainWindow::changeTreeSelection(int direction) {
     }
     if(nextItem != NULL) {
         ui->treeWidgetWords->setCurrentItem(nextItem);
+        ui->labelWord->setText(nextItem->text(0));
         return true;
     }
     return false;
