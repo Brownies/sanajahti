@@ -271,6 +271,9 @@
           </item>
           <item>
            <widget class="QTableWidget" name="tableWidgetGrid">
+            <property name="sizeAdjustPolicy">
+             <enum>QAbstractScrollArea::AdjustIgnored</enum>
+            </property>
             <property name="selectionMode">
              <enum>QAbstractItemView::SingleSelection</enum>
             </property>

@@ -24,8 +24,9 @@ int main(int argc, char *argv[])
         program.solveGrid(newGrid);
     });
     //Update the grid in the UI if the data has changed
-    QObject::connect(&program, &MainProgram::gridUpdated, [&]() {
-        w.update(program.grid, program.words);
+    QObject::connect(&program, &MainProgram::gridUpdated, [&](bool solved) {
+        if(solved) w.update(program.grid, program.words);
+        else w.notFound();
     });
     //Change language
     QObject::connect(&w, &MainWindow::languageChanged, [&](QString language){

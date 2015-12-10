@@ -27,6 +27,7 @@ public:
     void drawNext();
     void solveCurrent();
     void initTableColors();
+    void notFound();
 
 protected:
     bool eventFilter(QObject* obj, QEvent* event);
@@ -53,6 +54,8 @@ protected:
     bool inputOn = false;
     int inputX = 0;
     int inputY = 0;
+    int lastX = inputX;
+    int lastY = inputY;
 };
 
 #endif // MAINWINDOW_H

@@ -36,9 +36,9 @@ void MainProgram::makeGrid(QString filePath)
         qDebug() << "OCR finished";
         if(imageRead) {
             qDebug() << "OCR was successful";
-            solver->solve(grid, words);
+            bool solved = solver->solve(grid, words);
             qDebug() << "Solved: " << grid;
-            emit gridUpdated();
+            emit gridUpdated(solved);
         }
     }
     else if (ext == "txt") {
@@ -64,8 +64,8 @@ void MainProgram::makeGrid(QString filePath)
         }
         else {qDebug() << "unable to open file " << filePath; return;}
         qDebug() << "text file read successful";
-        solver->solve(grid, words);
-        emit gridUpdated();
+        bool solved = solver->solve(grid, words);
+        emit gridUpdated(solved);
     }
 }
 
@@ -74,7 +74,7 @@ void MainProgram::solveGrid(QVector<QVector<QChar>> newGrid) {
     words.clear();
     bool solved = solver->solve(grid, words);
     qDebug() << "Solved: " << solved << " with " << solver->language;
-    emit gridUpdated();
+    emit gridUpdated(solved);
 }
 
 void MainProgram::changeLanguage(QString language) {

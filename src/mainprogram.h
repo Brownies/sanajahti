@@ -20,7 +20,7 @@ public:
     void changeLanguage(QString language);
 
 signals:
-    void gridUpdated();
+    void gridUpdated(bool);
 
 private:
     QString filepath;
