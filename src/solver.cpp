@@ -228,7 +228,7 @@ void Solver::inner(int counter,
     if(counter == word.length() -1) {
         wordFound = true;
         finalPath = path;
-        return path;
+        
     }
     else{
         //get adjacent tiles and recurse
@@ -242,10 +242,10 @@ void Solver::inner(int counter,
             QVector<std::pair<int,int>> newPath;
             newPath = path;
             newPath.push_back(branch);
-            return inner(c, newPath, current, wordFound, word, cMap);
+            inner(c, newPath, current, wordFound, word, cMap);
         }
     }
-    return path;
+    
 }
 
 //function for comparing elements of word list
