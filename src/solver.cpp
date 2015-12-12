@@ -121,7 +121,8 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
             path.push_back(start);
 
             QVector<std::pair<int,int>> finalPath;
-            inner(0, path, start, wordFound, word, charMap, finalPath);
+            int beginning = 0;
+            inner(beginning, path, start, wordFound, word, charMap, finalPath);
 
             //if word was found from grid, add it to 'wordList'
             if(wordFound) {
@@ -218,12 +219,7 @@ QVector<std::pair<int,int>> Solver::adjacent(int x, int y, QChar c,
         return filtered;
     }
 
-void Solver::inner(int counter,
-                       QVector<std::pair<int,int>> path,
-                       std::pair<int,int> previous,
-                       bool& wordFound, QString word,
-                       std::map<QChar, std::set<std::pair<int,int>>> cMap
-                       QVector<std::pair<int,int>> &finalPath) {
+void Solver::inner(int& counter, QVector<std::pair<int,int> >& path, std::pair<int,int>& previous, bool& wordFound, QString& word, std::map<QChar, std::set<std::pair<int,int>>>& cMap, QVector<std::pair<int,int>> &finalPath) {
 
     if(counter == word.length() -1) {
         wordFound = true;
@@ -242,7 +238,7 @@ void Solver::inner(int counter,
             QVector<std::pair<int,int>> newPath;
             newPath = path;
             newPath.push_back(branch);
-            inner(c, newPath, current, wordFound, word, cMap);
+            inner(c, newPath, current, wordFound, word, cMap, finalPath);
         }
     }
     

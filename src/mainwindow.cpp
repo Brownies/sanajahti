@@ -466,19 +466,16 @@ void MainWindow::initTableColors() {
 
 void MainWindow::flashWord(Word* word) {
     QVector<QPair<int, int> > letters = word->getPosition();
-    qDebug() << letters;
     int width = 4;
     int height = 4;
     for(int x = 0; x < width; x++) {
         for(int y = 0; y < height; y++) {
-            qDebug() << "Blacken: " << x << ", " << y;
             ui->tableWidgetGrid->item(x, y)->setBackgroundColor(QColor(Qt::black));
         }
     }
     for(auto coord : letters) {
         int x = coord.first;
         int y = coord.second;
-        qDebug() << "Whiten: " << x << ", " << y;
         ui->tableWidgetGrid->item(x, y)->setBackgroundColor(QColor(Qt::white));
 
     }
