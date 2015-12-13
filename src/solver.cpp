@@ -7,7 +7,7 @@
 #include <map>
 #include "solver.h"
 
-const int size = 4;
+int size_x, size_y;
 
 
 
@@ -19,6 +19,8 @@ Solver::Solver(QObject *parent) : QObject(parent)
 //Solves the words in the given grid
 bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words)
 {
+    size_x = grid.size();
+    size_y = grid[0].size(); //TARVIIKO CHECKATA, ONKO GRIDILLA JOTAIN? NYT CRASHAA TYHJAAN
     qDebug() << "Solver::solve called";
 
     QVector<QString> words2;
@@ -26,14 +28,14 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
     QFile inputFile("../dictionaries/" + language + ".dic");
     if (inputFile.open(QIODevice::ReadOnly))
     {
-       QTextStream in(&inputFile);
-       while (!in.atEnd())
-       {
-          QString line = in.readLine();
-          words2.push_back(line);
-       }
-       inputFile.close();
-       qDebug() << "dictionary read successful";
+        QTextStream in(&inputFile);
+        while (!in.atEnd())
+        {
+            QString line = in.readLine();
+            words2.push_back(line);
+        }
+        inputFile.close();
+        qDebug() << "dictionary read successful";
     }
     else {
         qDebug() << "Failed to open dictionary file";
@@ -43,9 +45,9 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
     //save grid to a vector row by row
     QVector<QString> grid2;
     std::set<QChar> chars;
-    for(int i = 0; i < size; i++) {
+    for(int i = 0; i < size_x; i++) {
         QString line = "";
-        for(int j = 0; j < size; j++) {
+        for(int j = 0; j < size_y; j++) {
             line += grid[i][j];
             chars.insert(grid[i][j]);
         }
@@ -55,8 +57,8 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
 
     //charmap contains char -> Set(coordinates) example: 'S' -> Set(00, 31)
     std::map<QChar, std::set<std::pair<int,int>>> charMap;
-    for(int i = 0; i < size; i++) {
-        for(int j = 0; j < size; j++) {
+    for(int i = 0; i < size_x; i++) {
+        for(int j = 0; j < size_y; j++) {
 
             QChar c = grid2[i][j];
 
@@ -129,7 +131,7 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
                 bool notDuplicate = true;
                 for(int i = 0; i < wordList.size(); i++) {
                     if (word == wordList[i].first) {
-                            notDuplicate = false;
+                        notDuplicate = false;
                     }
                 }
                 if(notDuplicate) {
@@ -180,51 +182,51 @@ bool Solver::solve(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words
 }
 
 QVector<std::pair<int,int>> Solver::adjacent(int x, int y, QChar c,
-                                                 std::pair<int,int> prev,
-                                                 QVector<std::pair<int,int>> path,
-                                                 std::map<QChar, std::set<std::pair<int,int>>> cMap)
-    {
-        QVector<std::pair<int,int>> adja;
-        for (int i = -1; i < 2; i++) {
-            for (int j = -1; j < 2; j++) {
-                adja.push_back(std::make_pair(x + i, y + j));
-            }
+                                             std::pair<int,int> prev,
+                                             QVector<std::pair<int,int>> path,
+                                             std::map<QChar, std::set<std::pair<int,int>>> cMap)
+{
+    QVector<std::pair<int,int>> adja;
+    for (int i = -1; i < 2; i++) {
+        for (int j = -1; j < 2; j++) {
+            adja.push_back(std::make_pair(x + i, y + j));
         }
-
-        QVector<std::pair<int,int>> filtered;
-        //accept only those coordinates that are inside the grid, contain the desired letter and have not been visited yet
-        for(auto it = adja.begin(); it != adja.end(); ++it) {
-            if(it->first > -1 && it->first < size && it->second > -1 && it->second < size &&
-               !(it->first == prev.first && it->second == prev.second)) {
-                bool inPath = false;
-                for(auto p = path.begin(); p != path.end(); ++p) {
-                    if(*it == *p) {
-                        inPath = true;
-                    }
-                }
-                if(!inPath) {
-                    bool wantedCharacter = true;
-                    //lets filter all but the characters we are looking for
-                    std::set<std::pair<int,int>> charLocations;
-                    charLocations = cMap.at(c);
-                    if(charLocations.find(*it) == charLocations.end()) {
-                        wantedCharacter = false;
-                    }
-                    if(wantedCharacter) {
-                        filtered.push_back(*it);
-                    }
-                }
-            }
-        }
-        return filtered;
     }
+
+    QVector<std::pair<int,int>> filtered;
+    //accept only those coordinates that are inside the grid, contain the desired letter and have not been visited yet
+    for(auto it = adja.begin(); it != adja.end(); ++it) {
+        if(it->first > -1 && it->first < size_x && it->second > -1 && it->second < size_y &&
+           !(it->first == prev.first && it->second == prev.second)) {
+            bool inPath = false;
+            for(auto p = path.begin(); p != path.end(); ++p) {
+                if(*it == *p) {
+                    inPath = true;
+                }
+            }
+            if(!inPath) {
+                bool wantedCharacter = true;
+                //lets filter all but the characters we are looking for
+                std::set<std::pair<int,int>> charLocations;
+                charLocations = cMap.at(c);
+                if(charLocations.find(*it) == charLocations.end()) {
+                    wantedCharacter = false;
+                }
+                if(wantedCharacter) {
+                    filtered.push_back(*it);
+                }
+            }
+        }
+    }
+    return filtered;
+}
 
 void Solver::inner(int& counter, QVector<std::pair<int,int> >& path, std::pair<int,int>& previous, bool& wordFound, QString& word, std::map<QChar, std::set<std::pair<int,int>>>& cMap, QVector<std::pair<int,int>> &finalPath) {
 
     if(counter == word.length() -1) {
         wordFound = true;
         finalPath = path;
-        
+
     }
     else{
         //get adjacent tiles and recurse
@@ -241,12 +243,12 @@ void Solver::inner(int& counter, QVector<std::pair<int,int> >& path, std::pair<i
             inner(c, newPath, current, wordFound, word, cMap, finalPath);
         }
     }
-    
+
 }
 
 //function for comparing elements of word list
 bool Solver::compare(const std::pair<QString, QVector<std::pair<int,int>>>& word1,
-                  const std::pair<QString, QVector<std::pair<int,int>>>& word2) {
+                     const std::pair<QString, QVector<std::pair<int,int>>>& word2) {
     if(word1.first.length() == word2.first.length()) {
         return word1.first < word2.first;
     }
