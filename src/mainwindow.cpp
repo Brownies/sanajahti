@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     });
     //Connect TreeWidget item selection to draw the corresponding word on the grid
     connect(ui->treeWidgetWords, &QTreeWidget::itemSelectionChanged, [&]() {
+        lightFactor = 100;
         if(charTimerOn) {
             killTimer(charTimerID);
             charTimerOn = false;
@@ -150,6 +151,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 
 void MainWindow::dropEvent(QDropEvent* event)
 {
+    inputEnabled = false;
     const QMimeData* mime = event->mimeData();
     if(mime->hasUrls())
     {
@@ -185,6 +187,16 @@ void MainWindow::init(QVector<QVector<QChar>>& grid)
     }
     gridWidget->viewport()->update();
     ui->treeWidgetWords->setSortingEnabled(false);
+
+    //Connect automagical solve
+    connect(ui->tableWidgetGrid, &QTableWidget::itemChanged, [=](QTableWidgetItem* item) {
+        if(!inputOn && inputEnabled && item == ui->tableWidgetGrid->currentItem()) {
+           inputEnabled = false;
+           ui->treeWidgetWords->selectionModel()->reset();
+           ui->tableWidgetGrid->selectionModel()->reset();
+           solveCurrent();
+       }
+    });
 }
 
 void MainWindow::update(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& words) {
@@ -231,6 +243,7 @@ void MainWindow::update(QVector<QVector<QChar>>& grid, QVector<QVector<Word*>>& 
         wordWidget->addTopLevelItem(current);
         wordWidget->expandAll();
     }
+    inputEnabled = true;
 }
 
 void MainWindow::inputToGrid() {
@@ -281,6 +294,7 @@ bool MainWindow::nextCell() {
 void MainWindow::startPlay() {
     if(wordTimerOn) {
         killTimer(wordTimerID);
+        lightFactor = 100;
         wordTimerOn = false;
         ui->buttonPlay->setText("Play");
     } else {
@@ -433,6 +447,7 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
 }
 
 void MainWindow::solveCurrent() {
+    inputEnabled = false;
     qDebug() << "Solving current grid";
     int columns = ui->tableWidgetGrid->columnCount();
     int rows = ui->tableWidgetGrid->rowCount();

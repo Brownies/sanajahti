@@ -51,6 +51,7 @@ private:
     QColor defaultBG = QColor(0, 51, 102);
     QColor defaultText = QColor(Qt::white);
     int lightFactor = 100;
+    bool inputEnabled = true;
 
 protected:
     Ui::MainWindow *ui;
