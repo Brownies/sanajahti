@@ -160,6 +160,8 @@ void MainWindow::dropEvent(QDropEvent* event)
         //Manipulate the first URL as local path
         QString file = urls.at(0).toLocalFile();
         qDebug() << "emit MainWindow::DropEvent with file " << file;
+        initTableColors();
+        ui->labelWord->clear();
         emit fileDropped(file);
     }
 }
