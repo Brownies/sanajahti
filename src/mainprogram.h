@@ -26,6 +26,8 @@ private:
     QString filepath;
     Solver* solver = 0;
     ImageReader* imgReader = 0;
+    int sizeX = 4;
+    int sizeY = 4;
 
 };
 

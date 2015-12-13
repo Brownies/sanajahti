@@ -10,8 +10,8 @@ MainProgram::MainProgram() : QObject()
     solver = new Solver(this);
     //Init data for grid
     QChar space = ' ';
-    QVector<QChar> empty(4, space);
-    grid.fill(empty, 4);
+    QVector<QChar> empty(sizeY, space);
+    grid.fill(empty, sizeX);
     qDebug() << "Grid is: " << grid;
     //Init data for words (TEST)
 }
