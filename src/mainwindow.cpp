@@ -193,6 +193,7 @@ void MainWindow::init(QVector<QVector<QChar>>& grid)
     //Connect automagical solve
     connect(ui->tableWidgetGrid, &QTableWidget::itemChanged, [=](QTableWidgetItem* item) {
         if(!inputOn && inputEnabled && item == ui->tableWidgetGrid->currentItem()) {
+           qDebug() << "Changed to " << item->text();
            inputEnabled = false;
            ui->treeWidgetWords->selectionModel()->reset();
            ui->tableWidgetGrid->selectionModel()->reset();
@@ -458,7 +459,7 @@ void MainWindow::solveCurrent() {
     QVector<QVector<QChar> > result;
     for(auto x = 0; x < columns; x++) {
         for(auto y = 0; y < rows; y++) {
-            QString currentText = ui->tableWidgetGrid->item(x, y)->text();
+            QString currentText = ui->tableWidgetGrid->item(x, y)->text().toUpper();
             QChar current = currentText.at(0).unicode();
             temp.insert(y, current);
         }
@@ -466,6 +467,7 @@ void MainWindow::solveCurrent() {
         temp.clear();
     }
     currentGrid = result;
+    inputEnabled = true;
     emit requestSolve(currentGrid);
 }
 
